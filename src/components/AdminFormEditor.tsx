@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import Header from './Header';
-import { type Application } from '../lib/mockData';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { Switch } from './ui/switch';
+import { useState } from "react";
+import Header from "./Header";
+import { type Application } from "../lib/mockData";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Textarea } from "./ui/textarea";
+import { Switch } from "./ui/switch";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'admin';
+  role: "employee" | "admin";
 }
 
 interface AdminFormEditorProps {
@@ -20,64 +20,69 @@ interface AdminFormEditorProps {
   user: User;
   onNavigate: (page: string) => void;
   onLogout: () => void;
-  onSaveForm: (formData: Omit<Application, 'id'>, formId: string | null) => void;
+  onSaveForm: (
+    formData: Omit<Application, "id">,
+    formId: string | null,
+  ) => void;
 }
 
-export default function AdminFormEditor({ 
+export default function AdminFormEditor({
   applications,
-  formId, 
-  user, 
-  onNavigate, 
+  formId,
+  user,
+  onNavigate,
   onLogout,
-  onSaveForm
+  onSaveForm,
 }: AdminFormEditorProps) {
-  const existingForm = formId ? applications.find(app => app.id === formId) : null;
+  const existingForm = formId
+    ? applications.find((app) => app.id === formId)
+    : null;
   const isEditMode = !!existingForm;
 
   const [formData, setFormData] = useState({
-    name: existingForm?.name || '',
-    description: existingForm?.description || '',
-    submissionMethod: existingForm?.submissionMethod || '',
-    submissionUrl: existingForm?.submissionUrl || '',
-    notes: existingForm?.notes || '',
-    isPublished: existingForm?.isPublished ?? true
+    name: existingForm?.name || "",
+    description: existingForm?.description || "",
+    submissionMethod: existingForm?.submissionMethod || "",
+    submissionUrl: existingForm?.submissionUrl || "",
+    notes: existingForm?.notes || "",
+    isPublished: existingForm?.isPublished ?? true,
   });
 
   const [isSaved, setIsSaved] = useState(false);
 
   const handleChange = (field: string, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     setIsSaved(false);
   };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     // 実際のアプリではSupabaseに保存
-    console.log('Saving form:', formData);
+    console.log("Saving form:", formData);
     setIsSaved(true);
-    
+
     // 保存後、一覧画面に戻る
     setTimeout(() => {
-      onNavigate('admin-forms');
+      onNavigate("admin-forms");
     }, 1000);
-    
+
     // 保存処理を呼び出す
     onSaveForm(formData, formId);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        userName={user.name} 
-        onLogout={onLogout} 
-        role="admin" 
+      <Header
+        userName={user.name}
+        onLogout={onLogout}
+        role="admin"
         onNavigate={onNavigate}
       />
-      
+
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Button 
-          variant="outline" 
-          onClick={() => onNavigate('admin-forms')}
+        <Button
+          variant="outline"
+          onClick={() => onNavigate("admin-forms")}
           className="mb-6"
         >
           ← フォーム管理に戻る
@@ -85,7 +90,7 @@ export default function AdminFormEditor({
 
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h1 className="mb-6">
-            {isEditMode ? 'フォーム編集' : '新規フォーム作成'}
+            {isEditMode ? "フォーム編集" : "新規フォーム作成"}
           </h1>
 
           <form onSubmit={handleSave} className="space-y-6">
@@ -95,7 +100,7 @@ export default function AdminFormEditor({
                 id="name"
                 type="text"
                 value={formData.name}
-                onChange={(e) => handleChange('name', e.target.value)}
+                onChange={(e) => handleChange("name", e.target.value)}
                 placeholder="例: 勤怠報告"
                 required
               />
@@ -106,7 +111,7 @@ export default function AdminFormEditor({
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => handleChange('description', e.target.value)}
+                onChange={(e) => handleChange("description", e.target.value)}
                 placeholder="この申請の目的や内容を説明してください"
                 rows={4}
                 required
@@ -119,7 +124,9 @@ export default function AdminFormEditor({
                 id="submissionMethod"
                 type="text"
                 value={formData.submissionMethod}
-                onChange={(e) => handleChange('submissionMethod', e.target.value)}
+                onChange={(e) =>
+                  handleChange("submissionMethod", e.target.value)
+                }
                 placeholder="例: Google Form、Slack、メール"
                 required
               />
@@ -131,7 +138,7 @@ export default function AdminFormEditor({
                 id="submissionUrl"
                 type="text"
                 value={formData.submissionUrl}
-                onChange={(e) => handleChange('submissionUrl', e.target.value)}
+                onChange={(e) => handleChange("submissionUrl", e.target.value)}
                 placeholder="例: https://forms.google.com/... または mailto:example@company.com"
                 required
               />
@@ -142,7 +149,7 @@ export default function AdminFormEditor({
               <Textarea
                 id="notes"
                 value={formData.notes}
-                onChange={(e) => handleChange('notes', e.target.value)}
+                onChange={(e) => handleChange("notes", e.target.value)}
                 placeholder="申請時の注意点やよくある質問などを記入してください"
                 rows={4}
               />
@@ -152,7 +159,9 @@ export default function AdminFormEditor({
               <Switch
                 id="isPublished"
                 checked={formData.isPublished}
-                onCheckedChange={(checked) => handleChange('isPublished', checked)}
+                onCheckedChange={(checked) =>
+                  handleChange("isPublished", checked)
+                }
               />
               <Label htmlFor="isPublished" className="cursor-pointer">
                 公開する（社員が閲覧可能になります）
@@ -169,10 +178,10 @@ export default function AdminFormEditor({
               <Button type="submit" className="flex-1">
                 保存
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={() => onNavigate('admin-forms')}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onNavigate("admin-forms")}
                 className="flex-1"
               >
                 キャンセル

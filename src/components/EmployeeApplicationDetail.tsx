@@ -1,18 +1,18 @@
-import { useState } from 'react';
-import Header from './Header';
-import { type Application, mockSubmissions } from '../lib/mockData';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { ExternalLink, Plus, X } from 'lucide-react';
-import { toast, Toaster } from 'sonner';
+import { useState } from "react";
+import Header from "./Header";
+import { type Application, mockSubmissions } from "../lib/mockData";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { ExternalLink, Plus, X } from "lucide-react";
+import { toast, Toaster } from "sonner";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'admin';
+  role: "employee" | "admin";
 }
 
 interface EmployeeApplicationDetailProps {
@@ -21,37 +21,43 @@ interface EmployeeApplicationDetailProps {
   user: User;
   onNavigate: (page: string) => void;
   onLogout: () => void;
-  onAddToMyApplications: (applicationId: string, title: string, memo: string) => void;
+  onAddToMyApplications: (
+    applicationId: string,
+    title: string,
+    memo: string,
+  ) => void;
   unreadMessagesCount?: number;
 }
 
-export default function EmployeeApplicationDetail({ 
+export default function EmployeeApplicationDetail({
   applications,
-  applicationId, 
-  user, 
-  onNavigate, 
+  applicationId,
+  user,
+  onNavigate,
   onLogout,
   onAddToMyApplications,
-  unreadMessagesCount = 0
+  unreadMessagesCount = 0,
 }: EmployeeApplicationDetailProps) {
-  const application = applications.find(app => app.id === applicationId);
-  
+  const application = applications.find((app) => app.id === applicationId);
+
   // ユーザーの提出状況を取得
   const submission = mockSubmissions.find(
-    s => s.applicationId === applicationId && s.userId === user.id
+    (s) => s.applicationId === applicationId && s.userId === user.id,
   );
-  
-  const [isSubmitted, setIsSubmitted] = useState(submission?.status === 'submitted');
+
+  const [isSubmitted, setIsSubmitted] = useState(
+    submission?.status === "submitted",
+  );
   const [showAddModal, setShowAddModal] = useState(false);
-  const [addTitle, setAddTitle] = useState('');
-  const [addMemo, setAddMemo] = useState('');
+  const [addTitle, setAddTitle] = useState("");
+  const [addMemo, setAddMemo] = useState("");
 
   if (!application) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header 
-          userName={user.name} 
-          onLogout={onLogout} 
+        <Header
+          userName={user.name}
+          onLogout={onLogout}
           role="employee"
           onNavigate={onNavigate}
           currentPage="employee-application-detail"
@@ -60,9 +66,9 @@ export default function EmployeeApplicationDetail({
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
             <p className="text-gray-500">申請が見つかりませんでした</p>
-            <Button 
-              variant="outline" 
-              onClick={() => onNavigate('employee-applications')}
+            <Button
+              variant="outline"
+              onClick={() => onNavigate("employee-applications")}
               className="mt-4"
             >
               申請一覧に戻る
@@ -79,8 +85,8 @@ export default function EmployeeApplicationDetail({
   };
 
   const handleOpenSubmissionUrl = () => {
-    if (application.submissionUrl.startsWith('http')) {
-      window.open(application.submissionUrl, '_blank');
+    if (application.submissionUrl.startsWith("http")) {
+      window.open(application.submissionUrl, "_blank");
     } else {
       window.location.href = application.submissionUrl;
     }
@@ -96,39 +102,39 @@ export default function EmployeeApplicationDetail({
     // マイ申請に追加
     onAddToMyApplications(applicationId!, addTitle, addMemo);
     setShowAddModal(false);
-    setAddTitle('');
-    setAddMemo('');
-    
+    setAddTitle("");
+    setAddMemo("");
+
     // 成功通知を表示（クリックで遷移）
-    toast.success('マイ申請に追加しました', {
+    toast.success("マイ申請に追加しました", {
       duration: 3000,
       onClick: () => {
-        onNavigate('employee-my-applications');
-      }
+        onNavigate("employee-my-applications");
+      },
     });
   };
 
   const handleCancelAdd = () => {
     setShowAddModal(false);
-    setAddTitle('');
-    setAddMemo('');
+    setAddTitle("");
+    setAddMemo("");
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        userName={user.name} 
-        onLogout={onLogout} 
+      <Header
+        userName={user.name}
+        onLogout={onLogout}
         role="employee"
         onNavigate={onNavigate}
         currentPage="employee-application-detail"
         unreadMessagesCount={unreadMessagesCount}
       />
-      
+
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Button 
-          variant="outline" 
-          onClick={() => onNavigate('employee-applications')}
+        <Button
+          variant="outline"
+          onClick={() => onNavigate("employee-applications")}
           className="mb-6"
         >
           ← 申請一覧に戻る
@@ -146,7 +152,9 @@ export default function EmployeeApplicationDetail({
           <div className="p-6 space-y-6">
             <div>
               <h2 className="mb-2">概要</h2>
-              <p className="text-gray-700 whitespace-pre-wrap">{application.description}</p>
+              <p className="text-gray-700 whitespace-pre-wrap">
+                {application.description}
+              </p>
             </div>
 
             <div>
@@ -157,14 +165,16 @@ export default function EmployeeApplicationDetail({
             {application.notes && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <h3 className="mb-2">注意事項</h3>
-                <p className="text-gray-700 whitespace-pre-wrap">{application.notes}</p>
+                <p className="text-gray-700 whitespace-pre-wrap">
+                  {application.notes}
+                </p>
               </div>
             )}
 
             {/* アクションボタン */}
             <div className="pt-4 space-y-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Button 
+                <Button
                   onClick={handleOpenSubmissionUrl}
                   className="w-full"
                   size="lg"
@@ -173,7 +183,7 @@ export default function EmployeeApplicationDetail({
                   提出先を開く
                 </Button>
 
-                <Button 
+                <Button
                   onClick={handleAddToMyApplications}
                   variant="outline"
                   className="w-full"
@@ -185,7 +195,7 @@ export default function EmployeeApplicationDetail({
               </div>
 
               {!isSubmitted && (
-                <Button 
+                <Button
                   variant="outline"
                   onClick={handleMarkAsSubmitted}
                   className="w-full"
@@ -210,7 +220,7 @@ export default function EmployeeApplicationDetail({
             </button>
 
             <h2 className="mb-4">マイ申請に追加</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <Label htmlFor="add-title">タイトル</Label>

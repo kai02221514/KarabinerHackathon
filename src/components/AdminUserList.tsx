@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import Header from './Header';
-import { mockUserProfiles, mockMessages } from '../lib/mockData';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { MessageSquare } from 'lucide-react';
+import { useState } from "react";
+import Header from "./Header";
+import { mockUserProfiles, mockMessages } from "../lib/mockData";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { MessageSquare } from "lucide-react";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'admin';
+  role: "employee" | "admin";
 }
 
 interface AdminUserListProps {
@@ -21,52 +21,58 @@ interface AdminUserListProps {
   onViewUserChat: (userId: string) => void;
 }
 
-export default function AdminUserList({ 
-  user, 
-  onNavigate, 
+export default function AdminUserList({
+  user,
+  onNavigate,
   onLogout,
-  onViewUserChat
+  onViewUserChat,
 }: AdminUserListProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // 管理者以外のユーザーを取得
-  const employees = mockUserProfiles.filter(u => u.role === 'employee');
+  const employees = mockUserProfiles.filter((u) => u.role === "employee");
 
   // 各ユーザーの未読メッセージ数を取得
   const getUnreadCount = (userId: string) => {
     return mockMessages.filter(
-      msg => msg.senderId === userId && msg.receiverId === user.id && !msg.isRead
+      (msg) =>
+        msg.senderId === userId && msg.receiverId === user.id && !msg.isRead,
     ).length;
   };
 
   // 最新メッセージを取得
   const getLatestMessage = (userId: string) => {
-    const messages = mockMessages.filter(
-      msg => (msg.senderId === userId && msg.receiverId === user.id) ||
-             (msg.senderId === user.id && msg.receiverId === userId)
-    ).sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime());
-    
+    const messages = mockMessages
+      .filter(
+        (msg) =>
+          (msg.senderId === userId && msg.receiverId === user.id) ||
+          (msg.senderId === user.id && msg.receiverId === userId),
+      )
+      .sort(
+        (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
+      );
+
     return messages[0];
   };
 
   // 検索フィルタリング
-  const filteredEmployees = employees.filter(emp =>
-    emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    emp.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredEmployees = employees.filter(
+    (emp) =>
+      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      emp.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        userName={user.name} 
-        onLogout={onLogout} 
-        role="admin" 
+      <Header
+        userName={user.name}
+        onLogout={onLogout}
+        role="admin"
         onNavigate={onNavigate}
         currentPage="admin-users"
       />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 検索エリア */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
           <div className="max-w-md">
@@ -86,7 +92,9 @@ export default function AdminUserList({
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           {filteredEmployees.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
-              {searchQuery ? '該当するユーザーが見つかりませんでした' : 'ユーザーが登録されていません'}
+              {searchQuery
+                ? "該当するユーザーが見つかりませんでした"
+                : "ユーザーが登録されていません"}
             </div>
           ) : (
             <>
@@ -95,10 +103,18 @@ export default function AdminUserList({
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th className="px-6 py-3 text-left text-gray-700">ユーザー名</th>
-                      <th className="px-6 py-3 text-left text-gray-700">メールアドレス</th>
-                      <th className="px-6 py-3 text-left text-gray-700">最新メッセージ</th>
-                      <th className="px-6 py-3 text-left text-gray-700">操作</th>
+                      <th className="px-6 py-3 text-left text-gray-700">
+                        ユーザー名
+                      </th>
+                      <th className="px-6 py-3 text-left text-gray-700">
+                        メールアドレス
+                      </th>
+                      <th className="px-6 py-3 text-left text-gray-700">
+                        最新メッセージ
+                      </th>
+                      <th className="px-6 py-3 text-left text-gray-700">
+                        操作
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -109,7 +125,9 @@ export default function AdminUserList({
                         <tr
                           key={emp.id}
                           className={`hover:bg-gray-50 ${
-                            index !== filteredEmployees.length - 1 ? 'border-b border-gray-200' : ''
+                            index !== filteredEmployees.length - 1
+                              ? "border-b border-gray-200"
+                              : ""
                           }`}
                         >
                           <td className="px-6 py-4">
@@ -122,20 +140,24 @@ export default function AdminUserList({
                               )}
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-gray-600">{emp.email}</td>
+                          <td className="px-6 py-4 text-gray-600">
+                            {emp.email}
+                          </td>
                           <td className="px-6 py-4 text-gray-600">
                             {latestMessage ? (
                               <div className="max-w-xs truncate text-sm">
                                 {latestMessage.content.substring(0, 30)}
-                                {latestMessage.content.length > 30 ? '...' : ''}
+                                {latestMessage.content.length > 30 ? "..." : ""}
                               </div>
                             ) : (
-                              <span className="text-gray-400">メッセージなし</span>
+                              <span className="text-gray-400">
+                                メッセージなし
+                              </span>
                             )}
                           </td>
                           <td className="px-6 py-4">
-                            <Button 
-                              variant="outline" 
+                            <Button
+                              variant="outline"
                               size="sm"
                               onClick={() => onViewUserChat(emp.id)}
                             >
@@ -159,7 +181,9 @@ export default function AdminUserList({
                     <div
                       key={emp.id}
                       className={`p-4 ${
-                        index !== filteredEmployees.length - 1 ? 'border-b border-gray-200' : ''
+                        index !== filteredEmployees.length - 1
+                          ? "border-b border-gray-200"
+                          : ""
                       }`}
                     >
                       <div className="flex items-start justify-between mb-2">
@@ -167,22 +191,27 @@ export default function AdminUserList({
                           <div className="flex items-center gap-2 mb-1">
                             <span>{emp.name}</span>
                             {unreadCount > 0 && (
-                              <Badge variant="default" className="bg-red-600 text-xs">
+                              <Badge
+                                variant="default"
+                                className="bg-red-600 text-xs"
+                              >
                                 {unreadCount}
                               </Badge>
                             )}
                           </div>
-                          <div className="text-gray-600 text-sm">{emp.email}</div>
+                          <div className="text-gray-600 text-sm">
+                            {emp.email}
+                          </div>
                           {latestMessage && (
                             <div className="text-gray-600 text-sm mt-2 truncate">
                               {latestMessage.content.substring(0, 40)}
-                              {latestMessage.content.length > 40 ? '...' : ''}
+                              {latestMessage.content.length > 40 ? "..." : ""}
                             </div>
                           )}
                         </div>
                       </div>
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => onViewUserChat(emp.id)}
                         className="w-full mt-2"
@@ -203,7 +232,8 @@ export default function AdminUserList({
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="text-gray-600 mb-2">未読メッセージ</div>
             <div className="text-red-600">
-              {employees.reduce((sum, emp) => sum + getUnreadCount(emp.id), 0)}件
+              {employees.reduce((sum, emp) => sum + getUnreadCount(emp.id), 0)}
+              件
             </div>
           </div>
         </div>

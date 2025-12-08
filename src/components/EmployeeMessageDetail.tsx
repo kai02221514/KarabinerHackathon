@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import Header from './Header';
-import { mockUserProfiles, type Message } from '../lib/mockData';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Send, ArrowLeft } from 'lucide-react';
+import { useState } from "react";
+import Header from "./Header";
+import { mockUserProfiles, type Message } from "../lib/mockData";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Send, ArrowLeft } from "lucide-react";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'admin';
+  role: "employee" | "admin";
 }
 
 interface EmployeeMessageDetailProps {
@@ -21,37 +21,40 @@ interface EmployeeMessageDetailProps {
   unreadMessagesCount: number;
 }
 
-export default function EmployeeMessageDetail({ 
-  user, 
-  onNavigate, 
+export default function EmployeeMessageDetail({
+  user,
+  onNavigate,
   onLogout,
   messages,
   onSendMessage,
-  unreadMessagesCount
+  unreadMessagesCount,
 }: EmployeeMessageDetailProps) {
-  const [messageInput, setMessageInput] = useState('');
+  const [messageInput, setMessageInput] = useState("");
 
   // 管理者のIDを取得
-  const adminUser = mockUserProfiles.find(u => u.role === 'admin');
-  const adminId = adminUser?.id || 'admin1';
+  const adminUser = mockUserProfiles.find((u) => u.role === "admin");
+  const adminId = adminUser?.id || "admin1";
 
   // このユーザーと管理者とのメッセージのみフィルター
   const chatMessages = messages
-    .filter(msg => 
-      (msg.senderId === user.id && msg.receiverId === adminId) ||
-      (msg.senderId === adminId && msg.receiverId === user.id)
+    .filter(
+      (msg) =>
+        (msg.senderId === user.id && msg.receiverId === adminId) ||
+        (msg.senderId === adminId && msg.receiverId === user.id),
     )
-    .sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime());
+    .sort(
+      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
+    );
 
   const handleSend = () => {
     if (messageInput.trim()) {
       onSendMessage(adminId, messageInput.trim());
-      setMessageInput('');
+      setMessageInput("");
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
@@ -59,21 +62,21 @@ export default function EmployeeMessageDetail({
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header 
-        userName={user.name} 
-        onLogout={onLogout} 
-        role="employee" 
+      <Header
+        userName={user.name}
+        onLogout={onLogout}
+        role="employee"
         onNavigate={onNavigate}
         currentPage="employee-message-detail"
         unreadMessagesCount={unreadMessagesCount}
       />
-      
+
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col">
         {/* ヘッダー */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => onNavigate('employee-messages')}
+              onClick={() => onNavigate("employee-messages")}
               className="p-2 hover:bg-gray-100 rounded-md transition-colors"
             >
               <ArrowLeft className="h-5 w-5 text-gray-700" />
@@ -97,28 +100,30 @@ export default function EmployeeMessageDetail({
                 return (
                   <div
                     key={msg.id}
-                    className={`flex ${isFromEmployee ? 'justify-end' : 'justify-start'}`}
+                    className={`flex ${isFromEmployee ? "justify-end" : "justify-start"}`}
                   >
-                    <div className={`max-w-[70%] ${isFromEmployee ? 'order-2' : 'order-1'}`}>
+                    <div
+                      className={`max-w-[70%] ${isFromEmployee ? "order-2" : "order-1"}`}
+                    >
                       <div className="text-xs text-gray-500 mb-1">
-                        {isFromEmployee ? '自分' : '管理者'}
+                        {isFromEmployee ? "自分" : "管理者"}
                       </div>
                       <div
                         className={`rounded-lg px-4 py-3 ${
                           isFromEmployee
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-900'
+                            ? "bg-blue-600 text-white"
+                            : "bg-gray-100 text-gray-900"
                         }`}
                       >
                         {msg.content}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        {new Date(msg.sentAt).toLocaleString('ja-JP', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                        {new Date(msg.sentAt).toLocaleString("ja-JP", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </div>
                     </div>
@@ -139,10 +144,7 @@ export default function EmployeeMessageDetail({
                 placeholder="メッセージを入力..."
                 className="flex-1"
               />
-              <Button 
-                onClick={handleSend}
-                disabled={!messageInput.trim()}
-              >
+              <Button onClick={handleSend} disabled={!messageInput.trim()}>
                 <Send className="h-4 w-4" />
               </Button>
             </div>

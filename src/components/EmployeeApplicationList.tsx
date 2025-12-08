@@ -1,15 +1,15 @@
-import { useState } from 'react';
-import Header from './Header';
-import { type Application } from '../lib/mockData';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { useState } from "react";
+import Header from "./Header";
+import { type Application } from "../lib/mockData";
+import { Badge } from "./ui/badge";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'admin';
+  role: "employee" | "admin";
 }
 
 interface EmployeeApplicationListProps {
@@ -21,38 +21,39 @@ interface EmployeeApplicationListProps {
   unreadMessagesCount?: number;
 }
 
-export default function EmployeeApplicationList({ 
+export default function EmployeeApplicationList({
   applications,
-  user, 
-  onNavigate, 
-  onLogout, 
+  user,
+  onNavigate,
+  onLogout,
   onViewDetail,
-  unreadMessagesCount = 0
+  unreadMessagesCount = 0,
 }: EmployeeApplicationListProps) {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // フィルタリング
-  const filteredApplications = applications.filter(app => {
+  const filteredApplications = applications.filter((app) => {
     if (!app.isPublished) return false;
-    
-    const matchesSearch = app.name.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
+    const matchesSearch = app.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
     return matchesSearch;
   });
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        userName={user.name} 
-        onLogout={onLogout} 
-        role="employee" 
+      <Header
+        userName={user.name}
+        onLogout={onLogout}
+        role="employee"
         onNavigate={onNavigate}
         currentPage="employee-applications"
         unreadMessagesCount={unreadMessagesCount}
       />
-      
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* フィルタエリア */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
           <div>
@@ -81,8 +82,12 @@ export default function EmployeeApplicationList({
                 <table className="w-full">
                   <thead className="bg-gray-50 border-b border-gray-200">
                     <tr>
-                      <th className="px-6 py-3 text-left text-gray-700">申請名</th>
-                      <th className="px-6 py-3 text-left text-gray-700">提出方法</th>
+                      <th className="px-6 py-3 text-left text-gray-700">
+                        申請名
+                      </th>
+                      <th className="px-6 py-3 text-left text-gray-700">
+                        提出方法
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -91,11 +96,15 @@ export default function EmployeeApplicationList({
                         key={app.id}
                         onClick={() => onViewDetail(app.id)}
                         className={`cursor-pointer hover:bg-gray-50 ${
-                          index !== filteredApplications.length - 1 ? 'border-b border-gray-200' : ''
+                          index !== filteredApplications.length - 1
+                            ? "border-b border-gray-200"
+                            : ""
                         }`}
                       >
                         <td className="px-6 py-4">{app.name}</td>
-                        <td className="px-6 py-4 text-gray-600">{app.submissionMethod}</td>
+                        <td className="px-6 py-4 text-gray-600">
+                          {app.submissionMethod}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -109,7 +118,9 @@ export default function EmployeeApplicationList({
                     key={app.id}
                     onClick={() => onViewDetail(app.id)}
                     className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                      index !== filteredApplications.length - 1 ? 'border-b border-gray-200' : ''
+                      index !== filteredApplications.length - 1
+                        ? "border-b border-gray-200"
+                        : ""
                     }`}
                   >
                     <div className="mb-2">{app.name}</div>

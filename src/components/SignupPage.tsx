@@ -1,29 +1,37 @@
-import { useState } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
+import { useState } from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
-type UserRole = 'employee' | 'admin';
+type UserRole = "employee" | "admin";
 
 interface SignupPageProps {
-  onSignup: (name: string, email: string, password: string, role: UserRole) => void;
+  onSignup: (
+    name: string,
+    email: string,
+    password: string,
+    role: UserRole,
+  ) => void;
   onBackToLogin: () => void;
 }
 
-export default function SignupPage({ onSignup, onBackToLogin }: SignupPageProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole>('employee');
-  const [error, setError] = useState('');
+export default function SignupPage({
+  onSignup,
+  onBackToLogin,
+}: SignupPageProps) {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState<UserRole>("employee");
+  const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !password) {
-      setError('すべての項目を入力してください');
+      setError("すべての項目を入力してください");
       return;
     }
-    setError('');
+    setError("");
     onSignup(name, email, password, role);
   };
 
@@ -32,7 +40,7 @@ export default function SignupPage({ onSignup, onBackToLogin }: SignupPageProps)
       <div className="w-full max-w-md">
         <div className="bg-white rounded-lg shadow-md p-8">
           <h1 className="text-center mb-8">新規ユーザー登録</h1>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name">名前</Label>
@@ -75,7 +83,7 @@ export default function SignupPage({ onSignup, onBackToLogin }: SignupPageProps)
                     type="radio"
                     name="role"
                     value="employee"
-                    checked={role === 'employee'}
+                    checked={role === "employee"}
                     onChange={(e) => setRole(e.target.value as UserRole)}
                     className="mr-2"
                   />
@@ -86,7 +94,7 @@ export default function SignupPage({ onSignup, onBackToLogin }: SignupPageProps)
                     type="radio"
                     name="role"
                     value="admin"
-                    checked={role === 'admin'}
+                    checked={role === "admin"}
                     onChange={(e) => setRole(e.target.value as UserRole)}
                     className="mr-2"
                   />
@@ -96,9 +104,7 @@ export default function SignupPage({ onSignup, onBackToLogin }: SignupPageProps)
             </div>
 
             {error && (
-              <div className="text-red-600 bg-red-50 p-3 rounded">
-                {error}
-              </div>
+              <div className="text-red-600 bg-red-50 p-3 rounded">{error}</div>
             )}
 
             <Button type="submit" className="w-full">

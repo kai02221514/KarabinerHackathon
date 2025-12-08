@@ -1,13 +1,13 @@
-import Header from './Header';
-import { mockMessages, type Message } from '../lib/mockData';
-import { Badge } from './ui/badge';
-import { MessageSquare } from 'lucide-react';
+import Header from "./Header";
+import { mockMessages, type Message } from "../lib/mockData";
+import { Badge } from "./ui/badge";
+import { MessageSquare } from "lucide-react";
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'admin';
+  role: "employee" | "admin";
 }
 
 interface EmployeeMessagesProps {
@@ -19,33 +19,35 @@ interface EmployeeMessagesProps {
   unreadMessagesCount: number;
 }
 
-export default function EmployeeMessages({ 
-  user, 
-  onNavigate, 
+export default function EmployeeMessages({
+  user,
+  onNavigate,
   onLogout,
   onViewMessageDetail,
   messages,
-  unreadMessagesCount
+  unreadMessagesCount,
 }: EmployeeMessagesProps) {
   // このユーザー宛てのメッセージを取得
   const userMessages = messages
-    .filter(msg => msg.receiverId === user.id || msg.senderId === user.id)
-    .sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime());
+    .filter((msg) => msg.receiverId === user.id || msg.senderId === user.id)
+    .sort(
+      (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
+    );
 
   // メッセージをグループ化（最新のメッセージのみ表示）
   const latestMessages = userMessages.length > 0 ? [userMessages[0]] : [];
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header 
-        userName={user.name} 
-        onLogout={onLogout} 
-        role="employee" 
+      <Header
+        userName={user.name}
+        onLogout={onLogout}
+        role="employee"
         onNavigate={onNavigate}
         currentPage="employee-messages"
         unreadMessagesCount={unreadMessagesCount}
       />
-      
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <h1 className="mb-6">メッセージ</h1>
 
@@ -66,8 +68,10 @@ export default function EmployeeMessages({
                       key={msg.id}
                       onClick={onViewMessageDetail}
                       className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                        index !== latestMessages.length - 1 ? 'border-b border-gray-200' : ''
-                      } ${isUnread ? 'bg-blue-50' : ''}`}
+                        index !== latestMessages.length - 1
+                          ? "border-b border-gray-200"
+                          : ""
+                      } ${isUnread ? "bg-blue-50" : ""}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 flex-1">
@@ -78,20 +82,22 @@ export default function EmployeeMessages({
                             <div className="flex items-center gap-2 mb-1">
                               <span>管理者からのメッセージ</span>
                               {isUnread && (
-                                <Badge variant="default" className="bg-red-600">新着</Badge>
+                                <Badge variant="default" className="bg-red-600">
+                                  新着
+                                </Badge>
                               )}
                             </div>
                             <div className="text-gray-600 mb-1">
                               {msg.content.substring(0, 80)}
-                              {msg.content.length > 80 ? '...' : ''}
+                              {msg.content.length > 80 ? "..." : ""}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {new Date(msg.sentAt).toLocaleString('ja-JP', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
+                              {new Date(msg.sentAt).toLocaleString("ja-JP", {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
                               })}
                             </div>
                           </div>
@@ -111,25 +117,32 @@ export default function EmployeeMessages({
                       key={msg.id}
                       onClick={onViewMessageDetail}
                       className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                        index !== latestMessages.length - 1 ? 'border-b border-gray-200' : ''
-                      } ${isUnread ? 'bg-blue-50' : ''}`}
+                        index !== latestMessages.length - 1
+                          ? "border-b border-gray-200"
+                          : ""
+                      } ${isUnread ? "bg-blue-50" : ""}`}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <span>管理者からのメッセージ</span>
                         {isUnread && (
-                          <Badge variant="default" className="bg-red-600 text-xs">新着</Badge>
+                          <Badge
+                            variant="default"
+                            className="bg-red-600 text-xs"
+                          >
+                            新着
+                          </Badge>
                         )}
                       </div>
                       <div className="text-gray-600 mb-2 line-clamp-2">
                         {msg.content}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {new Date(msg.sentAt).toLocaleString('ja-JP', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                        {new Date(msg.sentAt).toLocaleString("ja-JP", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
                         })}
                       </div>
                     </div>
@@ -144,7 +157,8 @@ export default function EmployeeMessages({
         {latestMessages.length === 0 && (
           <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-blue-900">
-              💡 管理者からのメッセージがここに表示されます。申請に関する連絡や催促などを受け取れます。
+              💡
+              管理者からのメッセージがここに表示されます。申請に関する連絡や催促などを受け取れます。
             </p>
           </div>
         )}
