@@ -31,7 +31,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  role: 'employee' | 'admin';
+  role: "employee" | "admin";
 }
 
 export interface Message {
