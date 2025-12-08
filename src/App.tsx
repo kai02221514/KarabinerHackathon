@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import EmployeeHome from "./components/EmployeeHome";
@@ -23,6 +23,7 @@ import {
   mockUserProfiles,
 } from "./lib/mockData";
 import { toast, Toaster } from "sonner";
+import { authApi } from './lib/api';
 
 type UserRole = "employee" | "admin";
 
@@ -65,54 +66,85 @@ export default function App() {
   const [applications, setApplications] =
     useState<Application[]>(mockApplications);
   const [users, setUsers] = useState<UserProfile[]>(mockUserProfiles);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogin = (email: string, password: string) => {
-    // モック認証：登録済みユーザーから検索
-    const user = users.find((u) => u.email === email);
+  // 初期化: セッションチェックとデータ読み込み
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        // セッションチェック
+        const session = await authApi.getSession();
+        
+        if (session) {
+          // ユーザー情報取得
+          const { user } = await authApi.getCurrentUser();
+          setCurrentUser(user);
+          
+          // データ読み込み
+          // await loadData();
+          
+          setCurrentPage(user.role === 'admin' ? 'admin-home' : 'employee-home');
+        }
+      } catch (error) {
+        console.log('Initialization error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    initialize();
+  }, []);
 
-    if (user) {
-      setCurrentUser({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      });
-      setCurrentPage(user.role === "admin" ? "admin-home" : "employee-home");
-      toast.success("ログインしました");
-    } else {
-      toast.error("メールアドレスまたはパスワードが正しくありません");
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      await authApi.login(email, password);
+      
+      const { user } = await authApi.getCurrentUser();
+      setCurrentUser(user);
+      
+      // await loadData();
+      
+      setCurrentPage(user.role === 'admin' ? 'admin-home' : 'employee-home');
+      toast.success('ログインしました');
+    } catch (error: any) {
+      console.log('Login error:', error);
+      toast.error(error.message || 'ログインに失敗しました');
     }
   };
 
-  const handleSignup = (
-    name: string,
-    email: string,
-    password: string,
-    role: UserRole,
-  ) => {
-    // モック認証：新規ユーザーを追加
-    const newUser: UserProfile = {
-      id: `user-${Date.now()}`,
-      name,
-      email,
-      role,
-    };
-
-    setUsers((prev) => [...prev, newUser]);
-    setCurrentUser({
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      role: newUser.role,
-    });
-    setCurrentPage(role === "admin" ? "admin-home" : "employee-home");
-    toast.success("アカウントを作成しました");
+  const handleSignup = async (name: string, email: string, password: string, role: UserRole) => {
+    try {
+      await authApi.signup(name, email, password, role);
+      
+      // サインアップ後、自動ログイン
+      await authApi.login(email, password);
+      
+      const { user } = await authApi.getCurrentUser();
+      setCurrentUser(user);
+      
+      // await loadData();
+      
+      setCurrentPage(role === 'admin' ? 'admin-home' : 'employee-home');
+      toast.success('アカウントを作成しました');
+    } catch (error: any) {
+      console.log('Signup error:', error);
+      toast.error(error.message || 'アカウント作成に失敗しました');
+    }
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setCurrentPage("login");
-    toast.success("ログアウトしました");
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      setCurrentUser(null);
+      setApplications([]);
+      setMyApplicationItems([]);
+      setMessages([]);
+      setCurrentPage('login');
+      toast.success('ログアウトしました');
+    } catch (error: any) {
+      console.log('Logout error:', error);
+      toast.error('ログアウトに失敗しました');
+    }
   };
 
   const navigateTo = (page: Page) => {
@@ -257,7 +289,7 @@ export default function App() {
               applications={applications}
               onViewDetail={viewApplicationDetail}
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               unreadMessagesCount={unreadCount}
             />
@@ -268,7 +300,7 @@ export default function App() {
               applications={applications}
               applicationId={selectedApplicationId}
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onAddToMyApplications={addToMyApplications}
               unreadMessagesCount={unreadCount}
@@ -279,7 +311,7 @@ export default function App() {
             <EmployeeMyApplications
               applications={applications}
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onViewDetail={viewApplicationDetail}
               items={myApplicationItems}
@@ -293,7 +325,7 @@ export default function App() {
           return (
             <EmployeeMessages
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onViewMessageDetail={() => navigateTo("employee-message-detail")}
               messages={messages}
@@ -304,7 +336,7 @@ export default function App() {
           return (
             <EmployeeMessageDetail
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               messages={messages}
               onSendMessage={sendMessage}
@@ -317,7 +349,7 @@ export default function App() {
               applications={applications}
               onViewDetail={viewApplicationDetail}
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               myApplicationItems={myApplicationItems}
               unreadMessagesCount={unreadCount}
@@ -334,7 +366,7 @@ export default function App() {
             <AdminFormManagement
               applications={applications}
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onEditForm={editForm}
             />
@@ -345,7 +377,7 @@ export default function App() {
               applications={applications}
               formId={editingFormId}
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onSaveForm={saveApplication}
             />
@@ -354,7 +386,7 @@ export default function App() {
           return (
             <AdminUserList
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onViewUserChat={viewUserChat}
               messages={messages}
@@ -364,10 +396,8 @@ export default function App() {
           return (
             <AdminUserChat
               targetUserId={selectedUserId || ""}
-              targetUserName={selectedUserName}
-              targetUserEmail={selectedUserEmail}
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               messages={messages}
               onSendMessage={sendMessage}
@@ -378,7 +408,7 @@ export default function App() {
             <AdminHome
               applications={applications}
               user={currentUser}
-              onNavigate={navigateTo}
+              onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onEditForm={editForm}
             />
