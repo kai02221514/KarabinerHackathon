@@ -1,13 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./Header";
-import { type Message, mockUserProfiles } from "../lib/mockData";
+import { type Message } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { MessageSquare } from "lucide-react";
+import { usersApi } from "../lib/api/modules/users";
+import { toast } from "sonner";
 
 interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: "employee" | "admin";
+}
+
+interface EmployeeUser {
   id: string;
   name: string;
   email: string;
@@ -30,9 +39,29 @@ export default function AdminUserList({
   messages,
 }: AdminUserListProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [employees, setEmployees] = useState<EmployeeUser[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // モックデータから社員ユーザーを取得
-  const employees = mockUserProfiles.filter((u) => u.role === "employee");
+  // ユーザー一覧を取得
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const { users } = await usersApi.getAll();
+        // 管理者以外のユーザーを取得
+        const employeeUsers = users.filter(
+          (u: EmployeeUser) => u.role === "employee",
+        );
+        setEmployees(employeeUsers);
+      } catch (error: any) {
+        console.log("Load users error:", error);
+        toast.error("ユーザー一覧の取得に失敗しました");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
 
   // 各ユーザーの未読メッセージ数を取得
   const getUnreadCount = (userId: string) => {
