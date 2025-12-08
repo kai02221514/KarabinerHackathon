@@ -8,10 +8,10 @@ Run `npm i` to install the dependencies.
 
 Run `npm run dev` to start the development server.
 
-# 環境構築
-## [github ssh接続](https://qiita.com/shizuma/items/2b2f873a0034839e47ce)
-## [supabaseのローカルサーバ立ち上げ](https://zenn.dev/manase/articles/36c41271bbffa2)
-## [denoダウンロード](https://yoshixmk.github.io/deno-manual-ja/getting_started/installation.html)
+## 環境構築
+### [github ssh接続](https://qiita.com/shizuma/items/2b2f873a0034839e47ce)
+### [supabaseのローカルサーバ立ち上げ](https://zenn.dev/manase/articles/36c41271bbffa2)
+### [denoダウンロード](https://yoshixmk.github.io/deno-manual-ja/getting_started/installation.html)
 
 Deno起動コード例
 ```
