@@ -23,7 +23,7 @@ import {
   mockUserProfiles,
 } from "./lib/mockData";
 import { toast, Toaster } from "sonner";
-import { authApi } from './lib/api';
+import { authApi } from "./lib/api";
 
 type UserRole = "employee" | "admin";
 
@@ -74,61 +74,68 @@ export default function App() {
       try {
         // セッションチェック
         const session = await authApi.getSession();
-        
+
         if (session) {
           // ユーザー情報取得
           const { user } = await authApi.getCurrentUser();
           setCurrentUser(user);
-          
+
           // データ読み込み
           // await loadData();
-          
-          setCurrentPage(user.role === 'admin' ? 'admin-home' : 'employee-home');
+
+          setCurrentPage(
+            user.role === "admin" ? "admin-home" : "employee-home",
+          );
         }
       } catch (error) {
-        console.log('Initialization error:', error);
+        console.log("Initialization error:", error);
       } finally {
         setLoading(false);
       }
     };
-    
+
     initialize();
   }, []);
 
   const handleLogin = async (email: string, password: string) => {
     try {
       await authApi.login(email, password);
-      
+
       const { user } = await authApi.getCurrentUser();
       setCurrentUser(user);
-      
+
       // await loadData();
-      
-      setCurrentPage(user.role === 'admin' ? 'admin-home' : 'employee-home');
-      toast.success('ログインしました');
+
+      setCurrentPage(user.role === "admin" ? "admin-home" : "employee-home");
+      toast.success("ログインしました");
     } catch (error: any) {
-      console.log('Login error:', error);
-      toast.error(error.message || 'ログインに失敗しました');
+      console.log("Login error:", error);
+      toast.error(error.message || "ログインに失敗しました");
     }
   };
 
-  const handleSignup = async (name: string, email: string, password: string, role: UserRole) => {
+  const handleSignup = async (
+    name: string,
+    email: string,
+    password: string,
+    role: UserRole,
+  ) => {
     try {
       await authApi.signup(name, email, password, role);
-      
+
       // サインアップ後、自動ログイン
       await authApi.login(email, password);
-      
+
       const { user } = await authApi.getCurrentUser();
       setCurrentUser(user);
-      
+
       // await loadData();
-      
-      setCurrentPage(role === 'admin' ? 'admin-home' : 'employee-home');
-      toast.success('アカウントを作成しました');
+
+      setCurrentPage(role === "admin" ? "admin-home" : "employee-home");
+      toast.success("アカウントを作成しました");
     } catch (error: any) {
-      console.log('Signup error:', error);
-      toast.error(error.message || 'アカウント作成に失敗しました');
+      console.log("Signup error:", error);
+      toast.error(error.message || "アカウント作成に失敗しました");
     }
   };
 
@@ -139,11 +146,11 @@ export default function App() {
       setApplications([]);
       setMyApplicationItems([]);
       setMessages([]);
-      setCurrentPage('login');
-      toast.success('ログアウトしました');
+      setCurrentPage("login");
+      toast.success("ログアウトしました");
     } catch (error: any) {
-      console.log('Logout error:', error);
-      toast.error('ログアウトに失敗しました');
+      console.log("Logout error:", error);
+      toast.error("ログアウトに失敗しました");
     }
   };
 
