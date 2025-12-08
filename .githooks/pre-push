@@ -18,4 +18,10 @@ fi
 echo "pre-push: Prettier を実行中..."
 "$PRETTIER" --write "**/*.{ts,tsx,js,jsx,json,md,css,html}"
 
-echo "pre-push: 完了"
+if ! git diff --quiet; then
+  echo "pre-push: Prettier で変更が発生しました。"
+  echo "pre-push: 変更をコミットしてから再度 push してください。"
+  exit 1
+fi
+
+echo "pre-push: 完了（追加の変更なし）"
