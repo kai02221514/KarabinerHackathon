@@ -3,6 +3,7 @@ import { cors } from "npm:hono/cors"; // CORS ミドルウェア
 import { logger } from "npm:hono/logger"; // ログ出力ミドルウェア
 import { authRoutes } from "./routes/auth.ts"; // 認証ルーター
 import { healthRoutes } from "./routes/health.ts"; // ヘルスチェック
+import { adminRoutes } from "./routes/admin.ts";
 
 export function createApp() {
   const app = new Hono(); // Hono アプリインスタンスを生成
@@ -24,6 +25,7 @@ export function createApp() {
   // ルートモジュールをマウント
   app.route("/", healthRoutes);
   app.route("/", authRoutes);
+  app.route("/", adminRoutes);
 
   return app; // 完成したアプリを返す
 }
