@@ -1,0 +1,21 @@
+#!/bin/sh
+
+# Prettier を git push 前に実行するフック
+# Prettier が未インストールの場合はスキップして push は継続します。
+
+set -e
+
+# 利用する prettier のパスを決定
+if [ -x "./node_modules/.bin/prettier" ]; then
+  PRETTIER="./node_modules/.bin/prettier"
+elif command -v prettier >/dev/null 2>&1; then
+  PRETTIER="prettier"
+else
+  echo "pre-push: prettier が見つからないのでスキップします (npm i -D prettier が必要です)"
+  exit 0
+fi
+
+echo "pre-push: Prettier を実行中..."
+"$PRETTIER" --write "**/*.{ts,tsx,js,jsx,json,md,css,html}"
+
+echo "pre-push: 完了"
