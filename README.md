@@ -10,6 +10,7 @@ Run `npm run dev` to start the development server.
 
 ## 環境構築
 ### [github ssh接続](https://qiita.com/shizuma/items/2b2f873a0034839e47ce)
+### [Dockerダウンロード](https://www.docker.com/ja-jp/get-started/)
 ### [supabaseのローカルサーバ立ち上げ](https://zenn.dev/manase/articles/36c41271bbffa2)
 ### [denoダウンロード](https://yoshixmk.github.io/deno-manual-ja/getting_started/installation.html)
 
