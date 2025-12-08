@@ -12,7 +12,9 @@ import AdminFormManagement from './components/AdminFormManagement';
 import AdminFormEditor from './components/AdminFormEditor';
 import AdminUserList from './components/AdminUserList';
 import AdminUserChat from './components/AdminUserChat';
-import { mockMyApplicationItems, mockMessages, mockApplications, type MyApplicationItem, type Message, type Application } from './lib/mockData';
+import { type MyApplicationItem, type Message, type Application } from './lib/mockData';
+import { authApi, applicationsApi, myApplicationsApi, messagesApi, setupApi } from './lib/api';
+import { toast, Toaster } from 'sonner';
 
 type UserRole = 'employee' | 'admin';
 
@@ -43,39 +45,107 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
   const [editingFormId, setEditingFormId] = useState<string | null>(null);
-  const [myApplicationItems, setMyApplicationItems] = useState<MyApplicationItem[]>(mockMyApplicationItems);
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const [myApplicationItems, setMyApplicationItems] = useState<MyApplicationItem[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [applications, setApplications] = useState<Application[]>(mockApplications);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleLogin = (email: string, password: string) => {
-    // モックログイン処理
-    // 実際のアプリではSupabaseで認証を行う
-    const mockUser: User = {
-      id: '1',
-      name: '山田太郎',
-      email: email,
-      role: email.includes('admin') ? 'admin' : 'employee'
+  // 初期化: セッションチェックとデータ読み込み
+  useEffect(() => {
+    const initialize = async () => {
+      try {
+        // セッションチェック
+        const session = await authApi.getSession();
+        
+        if (session) {
+          // ユーザー情報取得
+          const { user } = await authApi.getCurrentUser();
+          setCurrentUser(user);
+          
+          // データ読み込み
+          await loadData();
+          
+          setCurrentPage(user.role === 'admin' ? 'admin-home' : 'employee-home');
+        }
+      } catch (error) {
+        console.log('Initialization error:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-    setCurrentUser(mockUser);
-    setCurrentPage(mockUser.role === 'admin' ? 'admin-home' : 'employee-home');
+    
+    initialize();
+  }, []);
+
+  // データ読み込み
+  const loadData = async () => {
+    try {
+      const [appsRes, myAppsRes, messagesRes] = await Promise.all([
+        applicationsApi.getAll(),
+        myApplicationsApi.getAll(),
+        messagesApi.getAll(),
+      ]);
+      
+      setApplications(appsRes.applications || []);
+      setMyApplicationItems(myAppsRes.items || []);
+      setMessages(messagesRes.messages || []);
+    } catch (error) {
+      console.log('Load data error:', error);
+      toast.error('データの読み込みに失敗しました');
+    }
   };
 
-  const handleSignup = (name: string, email: string, password: string, role: UserRole) => {
-    // モック登録処理
-    const newUser: User = {
-      id: Date.now().toString(),
-      name,
-      email,
-      role
-    };
-    setCurrentUser(newUser);
-    setCurrentPage(role === 'admin' ? 'admin-home' : 'employee-home');
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      await authApi.login(email, password);
+      
+      const { user } = await authApi.getCurrentUser();
+      setCurrentUser(user);
+      
+      await loadData();
+      
+      setCurrentPage(user.role === 'admin' ? 'admin-home' : 'employee-home');
+      toast.success('ログインしました');
+    } catch (error: any) {
+      console.log('Login error:', error);
+      toast.error(error.message || 'ログインに失敗しました');
+    }
   };
 
-  const handleLogout = () => {
-    setCurrentUser(null);
-    setCurrentPage('login');
+  const handleSignup = async (name: string, email: string, password: string, role: UserRole) => {
+    try {
+      await authApi.signup(name, email, password, role);
+      
+      // サインアップ後、自動ログイン
+      await authApi.login(email, password);
+      
+      const { user } = await authApi.getCurrentUser();
+      setCurrentUser(user);
+      
+      await loadData();
+      
+      setCurrentPage(role === 'admin' ? 'admin-home' : 'employee-home');
+      toast.success('アカウントを作成しました');
+    } catch (error: any) {
+      console.log('Signup error:', error);
+      toast.error(error.message || 'アカウント作成に失敗しました');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      setCurrentUser(null);
+      setApplications([]);
+      setMyApplicationItems([]);
+      setMessages([]);
+      setCurrentPage('login');
+      toast.success('ログアウトしました');
+    } catch (error: any) {
+      console.log('Logout error:', error);
+      toast.error('ログアウトに失敗しました');
+    }
   };
 
   const navigateTo = (page: Page) => {
@@ -92,42 +162,54 @@ export default function App() {
     setCurrentPage('admin-form-editor');
   };
 
-  const addToMyApplications = (applicationId: string, title: string, memo: string) => {
+  const addToMyApplications = async (applicationId: string, title: string, memo: string) => {
     if (!currentUser) return;
     
-    const newItem: MyApplicationItem = {
-      id: Date.now().toString(),
-      applicationId,
-      userId: currentUser.id,
-      title,
-      memo,
-      isCompleted: false,
-      addedAt: new Date().toISOString(),
-      completedAt: null
-    };
-    
-    setMyApplicationItems(prev => [newItem, ...prev]);
+    try {
+      const { item } = await myApplicationsApi.add(applicationId, title, memo);
+      setMyApplicationItems(prev => [item, ...prev]);
+      toast.success('マイ申請に追加しました');
+    } catch (error: any) {
+      console.log('Add to my applications error:', error);
+      toast.error('マイ申請への追加に失敗しました');
+    }
   };
 
-  const updateMyApplications = (items: MyApplicationItem[]) => {
+  const updateMyApplications = async (items: MyApplicationItem[]) => {
     setMyApplicationItems(items);
+    
+    // 更新された項目をバックエンドに保存
+    try {
+      for (const item of items) {
+        await myApplicationsApi.update(item.id, item);
+      }
+    } catch (error: any) {
+      console.log('Update my applications error:', error);
+      toast.error('マイ申請の更新に失敗しました');
+    }
   };
 
-  const saveApplication = (formData: Omit<Application, 'id'>, formId: string | null) => {
-    if (formId) {
-      // 既存フォームの更新
-      setApplications(prev => prev.map(app => 
-        app.id === formId 
-          ? { ...app, ...formData }
-          : app
-      ));
-    } else {
-      // 新規フォームの追加
-      const newApplication: Application = {
-        id: Date.now().toString(),
-        ...formData
-      };
-      setApplications(prev => [...prev, newApplication]);
+  const saveApplication = async (formData: Omit<Application, 'id'>, formId: string | null) => {
+    try {
+      const data = formId ? { ...formData, id: formId } : formData;
+      const { application } = await applicationsApi.save(data);
+      
+      if (formId) {
+        // 既存フォームの更新
+        setApplications(prev => prev.map(app => 
+          app.id === formId ? application : app
+        ));
+        toast.success('申請フォームを更新しました');
+      } else {
+        // 新規��ォームの追加
+        setApplications(prev => [...prev, application]);
+        toast.success('申請フォームを作成しました');
+      }
+      
+      navigateTo('admin-forms');
+    } catch (error: any) {
+      console.log('Save application error:', error);
+      toast.error('申請フォームの保存に失敗しました');
     }
   };
 
@@ -136,19 +218,16 @@ export default function App() {
     setCurrentPage('admin-user-chat');
   };
 
-  const sendMessage = (receiverId: string, content: string) => {
+  const sendMessage = async (receiverId: string, content: string) => {
     if (!currentUser) return;
     
-    const newMessage: Message = {
-      id: Date.now().toString(),
-      senderId: currentUser.id,
-      receiverId,
-      content,
-      sentAt: new Date().toISOString(),
-      isRead: false
-    };
-    
-    setMessages(prev => [...prev, newMessage]);
+    try {
+      const { message } = await messagesApi.send(receiverId, content);
+      setMessages(prev => [...prev, message]);
+    } catch (error: any) {
+      console.log('Send message error:', error);
+      toast.error('メッセージの送信に失敗しました');
+    }
   };
 
   const markMessagesAsRead = (senderId: string) => {
@@ -254,7 +333,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {renderPage()}
+      {loading ? <div className="flex justify-center items-center h-screen">Loading...</div> : renderPage()}
+      <Toaster />
     </div>
   );
 }
