@@ -1,8 +1,4 @@
-import type {
-  Application,
-  Message,
-  MyApplicationItem,
-} from "../types.ts"; // 型定義
+import type { Application, Message, MyApplicationItem } from "../types.ts"; // 型定義
 
 // applications テーブルの行を API 返却用に整形
 export function mapApplicationRow(row: any): Application {
