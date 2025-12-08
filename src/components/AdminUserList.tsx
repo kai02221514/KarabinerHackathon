@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "./Header";
-import { mockUserProfiles, mockMessages } from "../lib/mockData";
+import { type Message, mockUserProfiles } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
@@ -18,7 +18,8 @@ interface AdminUserListProps {
   user: User;
   onNavigate: (page: string) => void;
   onLogout: () => void;
-  onViewUserChat: (userId: string) => void;
+  onViewUserChat: (userId: string, userName: string, userEmail: string) => void;
+  messages: Message[];
 }
 
 export default function AdminUserList({
@@ -26,15 +27,16 @@ export default function AdminUserList({
   onNavigate,
   onLogout,
   onViewUserChat,
+  messages,
 }: AdminUserListProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 管理者以外のユーザーを取得
+  // モックデータから社員ユーザーを取得
   const employees = mockUserProfiles.filter((u) => u.role === "employee");
 
   // 各ユーザーの未読メッセージ数を取得
   const getUnreadCount = (userId: string) => {
-    return mockMessages.filter(
+    return messages.filter(
       (msg) =>
         msg.senderId === userId && msg.receiverId === user.id && !msg.isRead,
     ).length;
@@ -42,7 +44,7 @@ export default function AdminUserList({
 
   // 最新メッセージを取得
   const getLatestMessage = (userId: string) => {
-    const messages = mockMessages
+    const userMessages = messages
       .filter(
         (msg) =>
           (msg.senderId === userId && msg.receiverId === user.id) ||
@@ -52,7 +54,7 @@ export default function AdminUserList({
         (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
       );
 
-    return messages[0];
+    return userMessages[0];
   };
 
   // 検索フィルタリング
@@ -159,7 +161,9 @@ export default function AdminUserList({
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => onViewUserChat(emp.id)}
+                              onClick={() =>
+                                onViewUserChat(emp.id, emp.name, emp.email)
+                              }
                             >
                               <MessageSquare className="mr-1 h-3 w-3" />
                               メッセージ
@@ -213,7 +217,9 @@ export default function AdminUserList({
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onViewUserChat(emp.id)}
+                        onClick={() =>
+                          onViewUserChat(emp.id, emp.name, emp.email)
+                        }
                         className="w-full mt-2"
                       >
                         <MessageSquare className="mr-1 h-3 w-3" />

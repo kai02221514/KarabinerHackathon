@@ -3,7 +3,7 @@ import Header from "./Header";
 import { type Application, type MyApplicationItem } from "../lib/mockData";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Check, ExternalLink } from "lucide-react";
+import { Check, ExternalLink, Trash2 } from "lucide-react";
 
 interface User {
   id: string;
@@ -25,6 +25,7 @@ interface EmployeeMyApplicationsProps {
     memo: string,
   ) => void;
   onUpdateMyApplications: (items: MyApplicationItem[]) => void;
+  onDeleteMyApplication: (itemId: string) => void;
   unreadMessagesCount?: number;
 }
 
@@ -37,6 +38,7 @@ export default function EmployeeMyApplications({
   items,
   onAddToMyApplications,
   onUpdateMyApplications,
+  onDeleteMyApplication,
   unreadMessagesCount = 0,
 }: EmployeeMyApplicationsProps) {
   const [filter, setFilter] = useState<"all" | "incomplete" | "completed">(
@@ -83,7 +85,6 @@ export default function EmployeeMyApplications({
       }
       return newSet;
     });
-    // 実際のアプリではSupabaseに保存
   };
 
   const handleOpenSubmissionUrl = (url: string) => {
@@ -215,36 +216,22 @@ export default function EmployeeMyApplications({
                       size="sm"
                       className="w-full"
                     >
-                      <ExternalLink className="mr-2 h-3 w-3" />
-                      提出先を開く
+                      <ExternalLink className="mr-2 h-4 w-4" />
+                      申請フォームを開く
                     </Button>
                     <Button
-                      onClick={() => onViewDetail(item.applicationId)}
-                      variant="ghost"
+                      onClick={() => onDeleteMyApplication(item.id)}
+                      variant="outline"
                       size="sm"
-                      className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
-                      申請詳細を見る
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      削除
                     </Button>
-                  </div>
-
-                  {/* 追加日 */}
-                  <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
-                    追加日: {new Date(item.addedAt).toLocaleDateString("ja-JP")}
                   </div>
                 </div>
               );
             })}
-          </div>
-        )}
-
-        {/* ヒント */}
-        {myItems.length === 0 && (
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <p className="text-blue-900">
-              💡
-              申請一覧から必要な申請を見つけて「マイ申請に追加」ボタンを押すと、ここに表示されます。
-            </p>
           </div>
         )}
       </main>
