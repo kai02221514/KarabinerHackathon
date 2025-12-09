@@ -19,3 +19,9 @@ Deno起動コード例
 ```
 deno run -A --env-file=.env.local supabase/functions/server/index.tsx
 ```
+
+サーバの起動チェック
+
+```
+curl -i http://localhost:8000/make-server-f1e05698/health
+```
