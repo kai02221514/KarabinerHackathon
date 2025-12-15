@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import EmployeeHome from "./components/EmployeeHome";
@@ -23,7 +23,7 @@ import {
   mockUserProfiles,
 } from "./lib/mockData";
 import { toast, Toaster } from "sonner";
-import { authApi } from "./lib/api";
+import { authApi, messagesApi } from "./lib/api";
 
 type UserRole = "employee" | "admin";
 
@@ -59,7 +59,7 @@ export default function App() {
   const [myApplicationItems, setMyApplicationItems] = useState<
     MyApplicationItem[]
   >(mockMyApplicationItems);
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
   const [selectedUserEmail, setSelectedUserEmail] = useState<string>("");
@@ -81,10 +81,10 @@ export default function App() {
           setCurrentUser(user);
 
           // データ読み込み
-          // await loadData();
+          await loadData();
 
           setCurrentPage(
-            user.role === "admin" ? "admin-home" : "employee-home",
+            user.role === "admin" ? "admin-home" : "employee-home"
           );
         }
       } catch (error) {
@@ -97,6 +97,18 @@ export default function App() {
     initialize();
   }, []);
 
+  // データ読み込み
+  const loadData = async () => {
+    try {
+      const [messagesRes] = await Promise.all([messagesApi.getAll()]);
+
+      setMessages(messagesRes.messages || []);
+    } catch (error) {
+      console.log("Load data error:", error);
+      toast.error("データの読み込みに失敗しました");
+    }
+  };
+
   const handleLogin = async (email: string, password: string) => {
     try {
       await authApi.login(email, password);
@@ -104,7 +116,7 @@ export default function App() {
       const { user } = await authApi.getCurrentUser();
       setCurrentUser(user);
 
-      // await loadData();
+      await loadData();
 
       setCurrentPage(user.role === "admin" ? "admin-home" : "employee-home");
       toast.success("ログインしました");
@@ -118,7 +130,7 @@ export default function App() {
     name: string,
     email: string,
     password: string,
-    role: UserRole,
+    role: UserRole
   ) => {
     try {
       await authApi.signup(name, email, password, role);
@@ -129,7 +141,7 @@ export default function App() {
       const { user } = await authApi.getCurrentUser();
       setCurrentUser(user);
 
-      // await loadData();
+      await loadData();
 
       setCurrentPage(role === "admin" ? "admin-home" : "employee-home");
       toast.success("アカウントを作成しました");
@@ -167,11 +179,10 @@ export default function App() {
     setEditingFormId(id);
     setCurrentPage("admin-form-editor");
   };
-
   const addToMyApplications = (
     applicationId: string,
     title: string,
-    memo: string,
+    memo: string
   ) => {
     if (!currentUser) return;
 
@@ -201,14 +212,14 @@ export default function App() {
 
   const saveApplication = (
     formData: Omit<Application, "id">,
-    formId: string | null,
+    formId: string | null
   ) => {
     if (formId) {
       // 既存フォームの更新
       setApplications((prev) =>
         prev.map((app) =>
-          app.id === formId ? { ...formData, id: formId } : app,
-        ),
+          app.id === formId ? { ...formData, id: formId } : app
+        )
       );
       toast.success("申請フォームを更新しました");
     } else {
@@ -222,11 +233,10 @@ export default function App() {
     }
     navigateTo("admin-forms");
   };
-
   const viewUserChat = (
     userId: string,
     userName: string,
-    userEmail: string,
+    userEmail: string
   ) => {
     setSelectedUserId(userId);
     setSelectedUserName(userName);
@@ -234,26 +244,32 @@ export default function App() {
     setCurrentPage("admin-user-chat");
   };
 
-  const sendMessage = (receiverId: string, content: string) => {
+  const sendMessage = async (receiverId: string, content: string) => {
     if (!currentUser) return;
 
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      senderId: currentUser.id,
-      receiverId,
-      content,
-      sentAt: new Date().toISOString(),
-      isRead: false,
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
+    try {
+      const { message } = await messagesApi.send(receiverId, content);
+      setMessages((prev) => [...prev, message]);
+    } catch (error: any) {
+      console.log("Send message error:", error);
+      toast.error("メッセージの送信に失敗しました");
+    }
   };
 
-  const markMessagesAsRead = (messageIds: string[]) => {
+  const markMessagesAsRead = (senderId: string) => {
+    if (!currentUser) return;
+
     setMessages((prev) =>
-      prev.map((msg) =>
-        messageIds.includes(msg.id) ? { ...msg, isRead: true } : msg,
-      ),
+      prev.map((msg) => {
+        if (
+          msg.senderId === senderId &&
+          msg.receiverId === currentUser.id &&
+          !msg.isRead
+        ) {
+          return { ...msg, isRead: true };
+        }
+        return msg;
+      })
     );
   };
 
@@ -261,9 +277,65 @@ export default function App() {
   const getUnreadMessagesCount = () => {
     if (!currentUser) return 0;
     return messages.filter(
-      (msg) => msg.receiverId === currentUser.id && !msg.isRead,
+      (msg) => msg.receiverId === currentUser.id && !msg.isRead
     ).length;
   };
+
+  // メッセージを既読にするエフェクト
+  useEffect(() => {
+    if (!currentUser) return;
+
+    if (
+      currentPage === "employee-messages" ||
+      currentPage === "employee-message-detail"
+    ) {
+      // 管理者からのメッセージを既読にする
+      const hasUnreadFromAdmin = messages.some(
+        (msg) =>
+          msg.senderId === "admin1" &&
+          msg.receiverId === currentUser.id &&
+          !msg.isRead
+      );
+
+      if (hasUnreadFromAdmin) {
+        setMessages((prev) =>
+          prev.map((msg) => {
+            if (
+              msg.senderId === "admin1" &&
+              msg.receiverId === currentUser.id &&
+              !msg.isRead
+            ) {
+              return { ...msg, isRead: true };
+            }
+            return msg;
+          })
+        );
+      }
+    } else if (currentPage === "admin-user-chat" && selectedUserId) {
+      // 選択されたユーザーからのメッセージを既読にする
+      const hasUnreadFromUser = messages.some(
+        (msg) =>
+          msg.senderId === selectedUserId &&
+          msg.receiverId === currentUser.id &&
+          !msg.isRead
+      );
+
+      if (hasUnreadFromUser) {
+        setMessages((prev) =>
+          prev.map((msg) => {
+            if (
+              msg.senderId === selectedUserId &&
+              msg.receiverId === currentUser.id &&
+              !msg.isRead
+            ) {
+              return { ...msg, isRead: true };
+            }
+            return msg;
+          })
+        );
+      }
+    }
+  }, [currentPage, selectedUserId, currentUser]);
 
   const renderPage = () => {
     if (!currentUser) {
@@ -403,6 +475,8 @@ export default function App() {
           return (
             <AdminUserChat
               targetUserId={selectedUserId || ""}
+              targetUserName={selectedUserName}
+              targetUserEmail={selectedUserEmail}
               user={currentUser}
               onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}

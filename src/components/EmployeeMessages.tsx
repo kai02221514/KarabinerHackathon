@@ -1,5 +1,5 @@
 import Header from "./Header";
-import { mockMessages, type Message } from "../lib/mockData";
+import { type Message } from "../lib/mockData";
 import { Badge } from "./ui/badge";
 import { MessageSquare } from "lucide-react";
 
@@ -31,7 +31,7 @@ export default function EmployeeMessages({
   const userMessages = messages
     .filter((msg) => msg.receiverId === user.id || msg.senderId === user.id)
     .sort(
-      (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
+      (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
     );
 
   // メッセージをグループ化（最新のメッセージのみ表示）
@@ -67,11 +67,10 @@ export default function EmployeeMessages({
                     <div
                       key={msg.id}
                       onClick={onViewMessageDetail}
-                      className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                        index !== latestMessages.length - 1
+                      className={`p-4 cursor-pointer hover:bg-gray-50 ${index !== latestMessages.length - 1
                           ? "border-b border-gray-200"
                           : ""
-                      } ${isUnread ? "bg-blue-50" : ""}`}
+                        } ${isUnread ? "bg-blue-50" : ""}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-3 flex-1">
@@ -116,11 +115,10 @@ export default function EmployeeMessages({
                     <div
                       key={msg.id}
                       onClick={onViewMessageDetail}
-                      className={`p-4 cursor-pointer hover:bg-gray-50 ${
-                        index !== latestMessages.length - 1
+                      className={`p-4 cursor-pointer hover:bg-gray-50 ${index !== latestMessages.length - 1
                           ? "border-b border-gray-200"
                           : ""
-                      } ${isUnread ? "bg-blue-50" : ""}`}
+                        } ${isUnread ? "bg-blue-50" : ""}`}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <span>管理者からのメッセージ</span>

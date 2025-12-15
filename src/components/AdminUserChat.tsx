@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "./Header";
-import { mockUserProfiles, mockMessages, type Message } from "../lib/mockData";
+import { type Message } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Send, ArrowLeft } from "lucide-react";
@@ -17,6 +17,8 @@ interface AdminUserChatProps {
   onNavigate: (page: string) => void;
   onLogout: () => void;
   targetUserId: string;
+  targetUserName?: string;
+  targetUserEmail?: string;
   messages: Message[];
   onSendMessage: (receiverId: string, content: string) => void;
 }
@@ -26,23 +28,22 @@ export default function AdminUserChat({
   onNavigate,
   onLogout,
   targetUserId,
+  targetUserName,
+  targetUserEmail,
   messages,
   onSendMessage,
 }: AdminUserChatProps) {
   const [messageInput, setMessageInput] = useState("");
-
-  // 対象ユーザー情報を取得
-  const targetUser = mockUserProfiles.find((u) => u.id === targetUserId);
 
   // このユーザーとのメッセージのみフィルター
   const chatMessages = messages
     .filter(
       (msg) =>
         (msg.senderId === user.id && msg.receiverId === targetUserId) ||
-        (msg.senderId === targetUserId && msg.receiverId === user.id),
+        (msg.senderId === targetUserId && msg.receiverId === user.id)
     )
     .sort(
-      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
+      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
     );
 
   const handleSend = () => {
@@ -59,7 +60,7 @@ export default function AdminUserChat({
     }
   };
 
-  if (!targetUser) {
+  if (!targetUserName || !targetUserEmail) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header
@@ -99,8 +100,8 @@ export default function AdminUserChat({
               <ArrowLeft className="h-5 w-5 text-gray-700" />
             </button>
             <div className="flex-1">
-              <div className="mb-1">{targetUser.name}</div>
-              <div className="text-gray-600">{targetUser.email}</div>
+              <div className="mb-1">{targetUserName}</div>
+              <div className="text-gray-600">{targetUserEmail}</div>
             </div>
           </div>
         </div>
@@ -124,14 +125,13 @@ export default function AdminUserChat({
                       className={`max-w-[70%] ${isFromAdmin ? "order-2" : "order-1"}`}
                     >
                       <div className="text-xs text-gray-500 mb-1">
-                        {isFromAdmin ? "管理者" : targetUser.name}
+                        {isFromAdmin ? "管理者" : targetUserName}
                       </div>
                       <div
-                        className={`rounded-lg px-4 py-3 ${
-                          isFromAdmin
+                        className={`rounded-lg px-4 py-3 ${isFromAdmin
                             ? "bg-blue-600 text-white"
                             : "bg-gray-100 text-gray-900"
-                        }`}
+                          }`}
                       >
                         {msg.content}
                       </div>

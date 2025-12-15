@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./Header";
-import { mockUserProfiles, type Message } from "../lib/mockData";
+import { type Message } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Send, ArrowLeft } from "lucide-react";
@@ -31,19 +31,22 @@ export default function EmployeeMessageDetail({
 }: EmployeeMessageDetailProps) {
   const [messageInput, setMessageInput] = useState("");
 
-  // 管理者のIDを取得
-  const adminUser = mockUserProfiles.find((u) => u.role === "admin");
-  const adminId = adminUser?.id || "admin1";
+  // 管理者のIDを取得（受信メッセージから）
+  const adminMessage = messages.find((msg) => msg.receiverId === user.id);
+  const adminId =
+    adminMessage?.senderId ||
+    messages.find((msg) => msg.senderId !== user.id)?.senderId ||
+    "admin";
 
   // このユーザーと管理者とのメッセージのみフィルター
   const chatMessages = messages
     .filter(
       (msg) =>
         (msg.senderId === user.id && msg.receiverId === adminId) ||
-        (msg.senderId === adminId && msg.receiverId === user.id),
+        (msg.senderId === adminId && msg.receiverId === user.id)
     )
     .sort(
-      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
+      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
     );
 
   const handleSend = () => {
@@ -109,11 +112,10 @@ export default function EmployeeMessageDetail({
                         {isFromEmployee ? "自分" : "管理者"}
                       </div>
                       <div
-                        className={`rounded-lg px-4 py-3 ${
-                          isFromEmployee
+                        className={`rounded-lg px-4 py-3 ${isFromEmployee
                             ? "bg-blue-600 text-white"
                             : "bg-gray-100 text-gray-900"
-                        }`}
+                          }`}
                       >
                         {msg.content}
                       </div>
