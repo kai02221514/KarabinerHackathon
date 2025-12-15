@@ -2,4 +2,6 @@
 export { API_BASE, API_PREFIX, publicAnonKey, supabaseUrl } from "./config.ts"; // ベース設定
 export { supabase } from "./client.ts"; // Supabase クライアント
 export { apiRequest } from "./http.ts"; // 共通 fetch ラッパー
-export { authApi } from "./modules/auth.ts"; // auth API のみ残す
+export { authApi } from "./modules/auth.ts"; // auth API モジュール
+export { usersApi } from "./modules/users.ts"; // users API モジュール
+export { messagesApi } from "./modules/messages.ts"; // messages API モジュール
