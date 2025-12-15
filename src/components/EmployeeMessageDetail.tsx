@@ -43,10 +43,10 @@ export default function EmployeeMessageDetail({
     .filter(
       (msg) =>
         (msg.senderId === user.id && msg.receiverId === adminId) ||
-        (msg.senderId === adminId && msg.receiverId === user.id)
+        (msg.senderId === adminId && msg.receiverId === user.id),
     )
     .sort(
-      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
     );
 
   const handleSend = () => {
@@ -112,10 +112,11 @@ export default function EmployeeMessageDetail({
                         {isFromEmployee ? "自分" : "管理者"}
                       </div>
                       <div
-                        className={`rounded-lg px-4 py-3 ${isFromEmployee
+                        className={`rounded-lg px-4 py-3 ${
+                          isFromEmployee
                             ? "bg-blue-600 text-white"
                             : "bg-gray-100 text-gray-900"
-                          }`}
+                        }`}
                       >
                         {msg.content}
                       </div>

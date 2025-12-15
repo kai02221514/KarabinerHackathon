@@ -87,7 +87,7 @@ export default function App() {
           await loadData();
 
           setCurrentPage(
-            user.role === "admin" ? "admin-home" : "employee-home"
+            user.role === "admin" ? "admin-home" : "employee-home",
           );
         }
       } catch (error) {
@@ -133,7 +133,7 @@ export default function App() {
     name: string,
     email: string,
     password: string,
-    role: UserRole
+    role: UserRole,
   ) => {
     try {
       await authApi.signup(name, email, password, role);
@@ -185,7 +185,7 @@ export default function App() {
   const addToMyApplications = (
     applicationId: string,
     title: string,
-    memo: string
+    memo: string,
   ) => {
     if (!currentUser) return;
 
@@ -209,22 +209,20 @@ export default function App() {
   };
 
   const deleteMyApplication = (itemId: string) => {
-    setMyApplicationItems((prev) =>
-      prev.filter((item) => item.id !== itemId)
-    );
+    setMyApplicationItems((prev) => prev.filter((item) => item.id !== itemId));
     toast.success("マイ申請から削除しました");
   };
 
   const saveApplication = async (
     formData: Omit<Application, "id">,
-    formId: string | null
+    formId: string | null,
   ) => {
     if (formId) {
       // 既存フォームの更新
       setApplications((prev) =>
         prev.map((app) =>
-          app.id === formId ? { ...formData, id: formId } : app
-        )
+          app.id === formId ? { ...formData, id: formId } : app,
+        ),
       );
       toast.success("申請フォームを更新しました");
     } else {
@@ -242,7 +240,7 @@ export default function App() {
   const viewUserChat = (
     userId: string,
     userName: string,
-    userEmail: string
+    userEmail: string,
   ) => {
     setSelectedUserId(userId);
     setSelectedUserName(userName);
@@ -275,7 +273,7 @@ export default function App() {
           return { ...msg, isRead: true };
         }
         return msg;
-      })
+      }),
     );
   };
 
@@ -283,7 +281,7 @@ export default function App() {
   const getUnreadMessagesCount = () => {
     if (!currentUser) return 0;
     return messages.filter(
-      (msg) => msg.receiverId === currentUser.id && !msg.isRead
+      (msg) => msg.receiverId === currentUser.id && !msg.isRead,
     ).length;
   };
 
@@ -301,7 +299,7 @@ export default function App() {
           (msg) =>
             msg.receiverId === currentUser.id &&
             !msg.isRead &&
-            !processedMessageIds.current.has(msg.id)
+            !processedMessageIds.current.has(msg.id),
         );
 
         if (unreadMessages.length > 0) {
@@ -314,7 +312,7 @@ export default function App() {
               await messagesApi.markAsRead(msg.id);
               // ローカルのstateも更新
               setMessages((prev) =>
-                prev.map((m) => (m.id === msg.id ? { ...m, isRead: true } : m))
+                prev.map((m) => (m.id === msg.id ? { ...m, isRead: true } : m)),
               );
             } catch (error) {
               console.log("Mark message as read error:", error);
@@ -330,7 +328,7 @@ export default function App() {
             msg.senderId === selectedUserId &&
             msg.receiverId === currentUser.id &&
             !msg.isRead &&
-            !processedMessageIds.current.has(msg.id)
+            !processedMessageIds.current.has(msg.id),
         );
 
         if (unreadMessages.length > 0) {
@@ -343,7 +341,7 @@ export default function App() {
               await messagesApi.markAsRead(msg.id);
               // ローカルのstateも更新
               setMessages((prev) =>
-                prev.map((m) => (m.id === msg.id ? { ...m, isRead: true } : m))
+                prev.map((m) => (m.id === msg.id ? { ...m, isRead: true } : m)),
               );
             } catch (error) {
               console.log("Mark message as read error:", error);

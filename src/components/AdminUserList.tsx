@@ -65,7 +65,7 @@ export default function AdminUserList({
   const getUnreadCount = (userId: string) => {
     return messages.filter(
       (msg) =>
-        msg.senderId === userId && msg.receiverId === user.id && !msg.isRead
+        msg.senderId === userId && msg.receiverId === user.id && !msg.isRead,
     ).length;
   };
 
@@ -75,10 +75,10 @@ export default function AdminUserList({
       .filter(
         (msg) =>
           (msg.senderId === userId && msg.receiverId === user.id) ||
-          (msg.senderId === user.id && msg.receiverId === userId)
+          (msg.senderId === user.id && msg.receiverId === userId),
       )
       .sort(
-        (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
+        (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime(),
       );
 
     return userMessages[0];
@@ -88,7 +88,7 @@ export default function AdminUserList({
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (

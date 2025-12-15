@@ -26,7 +26,9 @@ export default function AdminHome({
   onEditForm,
 }: AdminHomeProps) {
   const totalForms = mockApplications.length;
-  const publishedForms = mockApplications.filter((app) => app.isPublished).length;
+  const publishedForms = mockApplications.filter(
+    (app) => app.isPublished,
+  ).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -77,8 +79,8 @@ export default function AdminHome({
           <div className="p-6 border-b border-gray-200">
             <h2>最近公開されたフォーム</h2>
           </div>
-          {mockApplications.filter((app) => app.isPublished).slice(0, 3).length ===
-          0 ? (
+          {mockApplications.filter((app) => app.isPublished).slice(0, 3)
+            .length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               公開中のフォームはありません
             </div>

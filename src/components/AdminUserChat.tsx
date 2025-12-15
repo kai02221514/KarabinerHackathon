@@ -40,10 +40,10 @@ export default function AdminUserChat({
     .filter(
       (msg) =>
         (msg.senderId === user.id && msg.receiverId === targetUserId) ||
-        (msg.senderId === targetUserId && msg.receiverId === user.id)
+        (msg.senderId === targetUserId && msg.receiverId === user.id),
     )
     .sort(
-      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+      (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime(),
     );
 
   const handleSend = () => {
@@ -128,10 +128,11 @@ export default function AdminUserChat({
                         {isFromAdmin ? "管理者" : targetUserName}
                       </div>
                       <div
-                        className={`rounded-lg px-4 py-3 ${isFromAdmin
+                        className={`rounded-lg px-4 py-3 ${
+                          isFromAdmin
                             ? "bg-blue-600 text-white"
                             : "bg-gray-100 text-gray-900"
-                          }`}
+                        }`}
                       >
                         {msg.content}
                       </div>

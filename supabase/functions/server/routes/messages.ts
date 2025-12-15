@@ -37,10 +37,10 @@ messageRoutes.get(`${API_PREFIX}/messages`, async (c) => {
   // Supabase の messages テーブルから
   // 「自分が送信者」または「自分が受信者」のメッセージを取得するクエリを実行
   const { data, error } = await supabase
-    .from("messages")             // 操作対象テーブルを指定
-    .select("*")                  // すべてのカラムを取得
+    .from("messages") // 操作対象テーブルを指定
+    .select("*") // すべてのカラムを取得
     .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`) // 送信 or 受信のどちらかが自分
-    .order("sent_at", { ascending: true });                  // 時系列（古い順）に並べ替え
+    .order("sent_at", { ascending: true }); // 時系列（古い順）に並べ替え
 
   // クエリ実行時にエラーが発生した場合はログを出して 500 を返す
   if (error) {
@@ -82,12 +82,12 @@ messageRoutes.post(`${API_PREFIX}/messages`, async (c) => {
 
     // messages テーブルに挿入するための行データを構築
     const insertData = {
-      id: messageId,           // メッセージの主キー
-      sender_id: user.id,      // 送信者は現在のログインユーザー
+      id: messageId, // メッセージの主キー
+      sender_id: user.id, // 送信者は現在のログインユーザー
       receiver_id: receiverId, // 受信者はリクエストボディから
-      content,                 // メッセージ本文
-      sent_at: sentAt,         // 送信時刻
-      is_read: false,          // 新規メッセージなので未読
+      content, // メッセージ本文
+      sent_at: sentAt, // 送信時刻
+      is_read: false, // 新規メッセージなので未読
     };
 
     // Supabase に対して insert を実行し、挿入された1行を取得
@@ -95,7 +95,7 @@ messageRoutes.post(`${API_PREFIX}/messages`, async (c) => {
       .from("messages") // 対象テーブル
       .insert(insertData)
       .select("*")
-      .maybeSingle();   // 1 件だけ返ってくる想定
+      .maybeSingle(); // 1 件だけ返ってくる想定
 
     // 挿入に失敗、もしくは data が空だった場合はエラーとして扱う
     if (error || !data) {
