@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import EmployeeHome from "./components/EmployeeHome";
@@ -58,7 +58,7 @@ export default function App() {
   const [editingFormId, setEditingFormId] = useState<string | null>(null);
   const [myApplicationItems, setMyApplicationItems] = useState<
     MyApplicationItem[]
-  >(mockMyApplicationItems);
+  >([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
@@ -67,6 +67,9 @@ export default function App() {
     useState<Application[]>(mockApplications);
   const [users, setUsers] = useState<UserProfile[]>(mockUserProfiles);
   const [loading, setLoading] = useState(true);
+
+  // 既読処理済みメッセージIDを追跡
+  const processedMessageIds = useRef<Set<string>>(new Set());
 
   // 初期化: セッションチェックとデータ読み込み
   useEffect(() => {
@@ -210,7 +213,7 @@ export default function App() {
     toast.success("マイ申請から削除しました");
   };
 
-  const saveApplication = (
+  const saveApplication = async (
     formData: Omit<Application, "id">,
     formId: string | null
   ) => {
@@ -233,6 +236,7 @@ export default function App() {
     }
     navigateTo("admin-forms");
   };
+
   const viewUserChat = (
     userId: string,
     userName: string,
@@ -285,57 +289,72 @@ export default function App() {
   useEffect(() => {
     if (!currentUser) return;
 
-    if (
-      currentPage === "employee-messages" ||
-      currentPage === "employee-message-detail"
-    ) {
-      // 管理者からのメッセージを既読にする
-      const hasUnreadFromAdmin = messages.some(
-        (msg) =>
-          msg.senderId === "admin1" &&
-          msg.receiverId === currentUser.id &&
-          !msg.isRead
-      );
-
-      if (hasUnreadFromAdmin) {
-        setMessages((prev) =>
-          prev.map((msg) => {
-            if (
-              msg.senderId === "admin1" &&
-              msg.receiverId === currentUser.id &&
-              !msg.isRead
-            ) {
-              return { ...msg, isRead: true };
-            }
-            return msg;
-          })
+    const markMessagesAsReadAsync = async () => {
+      if (
+        currentPage === "employee-messages" ||
+        currentPage === "employee-message-detail"
+      ) {
+        // 管理者からの未読メッセージを取得（未処理のものだけ）
+        const unreadMessages = messages.filter(
+          (msg) =>
+            msg.receiverId === currentUser.id &&
+            !msg.isRead &&
+            !processedMessageIds.current.has(msg.id)
         );
-      }
-    } else if (currentPage === "admin-user-chat" && selectedUserId) {
-      // 選択されたユーザーからのメッセージを既読にする
-      const hasUnreadFromUser = messages.some(
-        (msg) =>
-          msg.senderId === selectedUserId &&
-          msg.receiverId === currentUser.id &&
-          !msg.isRead
-      );
 
-      if (hasUnreadFromUser) {
-        setMessages((prev) =>
-          prev.map((msg) => {
-            if (
-              msg.senderId === selectedUserId &&
-              msg.receiverId === currentUser.id &&
-              !msg.isRead
-            ) {
-              return { ...msg, isRead: true };
+        if (unreadMessages.length > 0) {
+          // 各メッセージを既読にする
+          for (const msg of unreadMessages) {
+            // 処理中としてマーク
+            processedMessageIds.current.add(msg.id);
+
+            try {
+              await messagesApi.markAsRead(msg.id);
+              // ローカルのstateも更新
+              setMessages((prev) =>
+                prev.map((m) => (m.id === msg.id ? { ...m, isRead: true } : m))
+              );
+            } catch (error) {
+              console.log("Mark message as read error:", error);
+              // エラーの場合は処理済みフラグを削除
+              processedMessageIds.current.delete(msg.id);
             }
-            return msg;
-          })
+          }
+        }
+      } else if (currentPage === "admin-user-chat" && selectedUserId) {
+        // 選択されたユーザーからの未読メッセージを取得（未処理のものだけ）
+        const unreadMessages = messages.filter(
+          (msg) =>
+            msg.senderId === selectedUserId &&
+            msg.receiverId === currentUser.id &&
+            !msg.isRead &&
+            !processedMessageIds.current.has(msg.id)
         );
+
+        if (unreadMessages.length > 0) {
+          // 各メッセージを既読にする
+          for (const msg of unreadMessages) {
+            // 処理中としてマーク
+            processedMessageIds.current.add(msg.id);
+
+            try {
+              await messagesApi.markAsRead(msg.id);
+              // ローカルのstateも更新
+              setMessages((prev) =>
+                prev.map((m) => (m.id === msg.id ? { ...m, isRead: true } : m))
+              );
+            } catch (error) {
+              console.log("Mark message as read error:", error);
+              // エラーの場合は処理済みフラグを削除
+              processedMessageIds.current.delete(msg.id);
+            }
+          }
+        }
       }
-    }
-  }, [currentPage, selectedUserId, currentUser]);
+    };
+
+    markMessagesAsReadAsync();
+  }, [currentPage, selectedUserId, currentUser, messages]);
 
   const renderPage = () => {
     if (!currentUser) {
