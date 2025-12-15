@@ -58,7 +58,7 @@ export default function App() {
   const [editingFormId, setEditingFormId] = useState<string | null>(null);
   const [myApplicationItems, setMyApplicationItems] = useState<
     MyApplicationItem[]
-  >([]);
+  >(mockMyApplicationItems);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
@@ -209,7 +209,9 @@ export default function App() {
   };
 
   const deleteMyApplication = (itemId: string) => {
-    setMyApplicationItems((prev) => prev.filter((item) => item.id !== itemId));
+    setMyApplicationItems((prev) =>
+      prev.filter((item) => item.id !== itemId)
+    );
     toast.success("マイ申請から削除しました");
   };
 

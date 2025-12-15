@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "./Header";
-import { type Application, type MyApplicationItem } from "../lib/mockData";
+import { mockMyApplicationItems, type Application, type MyApplicationItem } from "../lib/mockData";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Check, ExternalLink, Trash2 } from "lucide-react";
@@ -41,16 +41,16 @@ export default function EmployeeMyApplications({
   onDeleteMyApplication,
   unreadMessagesCount = 0,
 }: EmployeeMyApplicationsProps) {
+
   const [filter, setFilter] = useState<"all" | "incomplete" | "completed">(
     "all",
   );
   const [completedItems, setCompletedItems] = useState<Set<string>>(
-    new Set(items.filter((item) => item.isCompleted).map((item) => item.id)),
+    new Set(mockMyApplicationItems.filter((item) => item.isCompleted).map((item) => item.id)),
   );
 
   // ユーザーのマイ申請アイテムを取得
-  const myItems = items
-    .filter((item) => item.userId === user.id)
+  const myItems = mockMyApplicationItems
     .map((item) => {
       const app = applications.find((a) => a.id === item.applicationId);
       return {
