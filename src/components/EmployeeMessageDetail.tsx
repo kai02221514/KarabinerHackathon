@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./Header";
-import { mockUserProfiles, type Message } from "../lib/mockData";
+import { type Message } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Send, ArrowLeft } from "lucide-react";
@@ -31,9 +31,12 @@ export default function EmployeeMessageDetail({
 }: EmployeeMessageDetailProps) {
   const [messageInput, setMessageInput] = useState("");
 
-  // 管理者のIDを取得
-  const adminUser = mockUserProfiles.find((u) => u.role === "admin");
-  const adminId = adminUser?.id || "admin1";
+  // 管理者のIDを取得（受信メッセージから）
+  const adminMessage = messages.find((msg) => msg.receiverId === user.id);
+  const adminId =
+    adminMessage?.senderId ||
+    messages.find((msg) => msg.senderId !== user.id)?.senderId ||
+    "admin";
 
   // このユーザーと管理者とのメッセージのみフィルター
   const chatMessages = messages

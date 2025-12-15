@@ -1,5 +1,5 @@
 import Header from "./Header";
-import { type Application } from "../lib/mockData";
+import { mockApplications, type Application } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { FileText, CheckCircle, Clock } from "lucide-react";
 
@@ -25,8 +25,10 @@ export default function AdminHome({
   onLogout,
   onEditForm,
 }: AdminHomeProps) {
-  const totalForms = applications.length;
-  const publishedForms = applications.filter((app) => app.isPublished).length;
+  const totalForms = mockApplications.length;
+  const publishedForms = mockApplications.filter(
+    (app) => app.isPublished,
+  ).length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -77,14 +79,14 @@ export default function AdminHome({
           <div className="p-6 border-b border-gray-200">
             <h2>最近公開されたフォーム</h2>
           </div>
-          {applications.filter((app) => app.isPublished).slice(0, 3).length ===
-          0 ? (
+          {mockApplications.filter((app) => app.isPublished).slice(0, 3)
+            .length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               公開中のフォームはありません
             </div>
           ) : (
             <div>
-              {applications
+              {mockApplications
                 .filter((app) => app.isPublished)
                 .slice(0, 3)
                 .map((app, index) => (
@@ -92,7 +94,7 @@ export default function AdminHome({
                     key={app.id}
                     className={`p-4 hover:bg-gray-50 cursor-pointer ${
                       index !==
-                      applications.filter((a) => a.isPublished).slice(0, 5)
+                      mockApplications.filter((a) => a.isPublished).slice(0, 5)
                         .length -
                         1
                         ? "border-b border-gray-200"

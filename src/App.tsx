@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import LoginPage from "./components/LoginPage";
 import SignupPage from "./components/SignupPage";
 import EmployeeHome from "./components/EmployeeHome";
@@ -23,7 +23,7 @@ import {
   mockUserProfiles,
 } from "./lib/mockData";
 import { toast, Toaster } from "sonner";
-import { authApi } from "./lib/api";
+import { authApi, messagesApi } from "./lib/api";
 
 type UserRole = "employee" | "admin";
 
@@ -59,7 +59,7 @@ export default function App() {
   const [myApplicationItems, setMyApplicationItems] = useState<
     MyApplicationItem[]
   >(mockMyApplicationItems);
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
   const [selectedUserEmail, setSelectedUserEmail] = useState<string>("");
@@ -67,6 +67,9 @@ export default function App() {
     useState<Application[]>(mockApplications);
   const [users, setUsers] = useState<UserProfile[]>(mockUserProfiles);
   const [loading, setLoading] = useState(true);
+
+  // 既読処理済みメッセージIDを追跡
+  const processedMessageIds = useRef<Set<string>>(new Set());
 
   // 初期化: セッションチェックとデータ読み込み
   useEffect(() => {
@@ -81,7 +84,7 @@ export default function App() {
           setCurrentUser(user);
 
           // データ読み込み
-          // await loadData();
+          await loadData();
 
           setCurrentPage(
             user.role === "admin" ? "admin-home" : "employee-home",
@@ -97,6 +100,18 @@ export default function App() {
     initialize();
   }, []);
 
+  // データ読み込み
+  const loadData = async () => {
+    try {
+      const [messagesRes] = await Promise.all([messagesApi.getAll()]);
+
+      setMessages(messagesRes.messages || []);
+    } catch (error) {
+      console.log("Load data error:", error);
+      toast.error("データの読み込みに失敗しました");
+    }
+  };
+
   const handleLogin = async (email: string, password: string) => {
     try {
       await authApi.login(email, password);
@@ -104,7 +119,7 @@ export default function App() {
       const { user } = await authApi.getCurrentUser();
       setCurrentUser(user);
 
-      // await loadData();
+      await loadData();
 
       setCurrentPage(user.role === "admin" ? "admin-home" : "employee-home");
       toast.success("ログインしました");
@@ -129,7 +144,7 @@ export default function App() {
       const { user } = await authApi.getCurrentUser();
       setCurrentUser(user);
 
-      // await loadData();
+      await loadData();
 
       setCurrentPage(role === "admin" ? "admin-home" : "employee-home");
       toast.success("アカウントを作成しました");
@@ -167,7 +182,6 @@ export default function App() {
     setEditingFormId(id);
     setCurrentPage("admin-form-editor");
   };
-
   const addToMyApplications = (
     applicationId: string,
     title: string,
@@ -199,7 +213,7 @@ export default function App() {
     toast.success("マイ申請から削除しました");
   };
 
-  const saveApplication = (
+  const saveApplication = async (
     formData: Omit<Application, "id">,
     formId: string | null,
   ) => {
@@ -234,26 +248,32 @@ export default function App() {
     setCurrentPage("admin-user-chat");
   };
 
-  const sendMessage = (receiverId: string, content: string) => {
+  const sendMessage = async (receiverId: string, content: string) => {
     if (!currentUser) return;
 
-    const newMessage: Message = {
-      id: `msg-${Date.now()}`,
-      senderId: currentUser.id,
-      receiverId,
-      content,
-      sentAt: new Date().toISOString(),
-      isRead: false,
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
+    try {
+      const { message } = await messagesApi.send(receiverId, content);
+      setMessages((prev) => [...prev, message]);
+    } catch (error: any) {
+      console.log("Send message error:", error);
+      toast.error("メッセージの送信に失敗しました");
+    }
   };
 
-  const markMessagesAsRead = (messageIds: string[]) => {
+  const markMessagesAsRead = (senderId: string) => {
+    if (!currentUser) return;
+
     setMessages((prev) =>
-      prev.map((msg) =>
-        messageIds.includes(msg.id) ? { ...msg, isRead: true } : msg,
-      ),
+      prev.map((msg) => {
+        if (
+          msg.senderId === senderId &&
+          msg.receiverId === currentUser.id &&
+          !msg.isRead
+        ) {
+          return { ...msg, isRead: true };
+        }
+        return msg;
+      }),
     );
   };
 
@@ -264,6 +284,77 @@ export default function App() {
       (msg) => msg.receiverId === currentUser.id && !msg.isRead,
     ).length;
   };
+
+  // メッセージを既読にするエフェクト
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const markMessagesAsReadAsync = async () => {
+      if (
+        currentPage === "employee-messages" ||
+        currentPage === "employee-message-detail"
+      ) {
+        // 管理者からの未読メッセージを取得（未処理のものだけ）
+        const unreadMessages = messages.filter(
+          (msg) =>
+            msg.receiverId === currentUser.id &&
+            !msg.isRead &&
+            !processedMessageIds.current.has(msg.id),
+        );
+
+        if (unreadMessages.length > 0) {
+          // 各メッセージを既読にする
+          for (const msg of unreadMessages) {
+            // 処理中としてマーク
+            processedMessageIds.current.add(msg.id);
+
+            try {
+              await messagesApi.markAsRead(msg.id);
+              // ローカルのstateも更新
+              setMessages((prev) =>
+                prev.map((m) => (m.id === msg.id ? { ...m, isRead: true } : m)),
+              );
+            } catch (error) {
+              console.log("Mark message as read error:", error);
+              // エラーの場合は処理済みフラグを削除
+              processedMessageIds.current.delete(msg.id);
+            }
+          }
+        }
+      } else if (currentPage === "admin-user-chat" && selectedUserId) {
+        // 選択されたユーザーからの未読メッセージを取得（未処理のものだけ）
+        const unreadMessages = messages.filter(
+          (msg) =>
+            msg.senderId === selectedUserId &&
+            msg.receiverId === currentUser.id &&
+            !msg.isRead &&
+            !processedMessageIds.current.has(msg.id),
+        );
+
+        if (unreadMessages.length > 0) {
+          // 各メッセージを既読にする
+          for (const msg of unreadMessages) {
+            // 処理中としてマーク
+            processedMessageIds.current.add(msg.id);
+
+            try {
+              await messagesApi.markAsRead(msg.id);
+              // ローカルのstateも更新
+              setMessages((prev) =>
+                prev.map((m) => (m.id === msg.id ? { ...m, isRead: true } : m)),
+              );
+            } catch (error) {
+              console.log("Mark message as read error:", error);
+              // エラーの場合は処理済みフラグを削除
+              processedMessageIds.current.delete(msg.id);
+            }
+          }
+        }
+      }
+    };
+
+    markMessagesAsReadAsync();
+  }, [currentPage, selectedUserId, currentUser, messages]);
 
   const renderPage = () => {
     if (!currentUser) {
@@ -403,6 +494,8 @@ export default function App() {
           return (
             <AdminUserChat
               targetUserId={selectedUserId || ""}
+              targetUserName={selectedUserName}
+              targetUserEmail={selectedUserEmail}
               user={currentUser}
               onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}

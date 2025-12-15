@@ -63,7 +63,7 @@ export const mockApplications: Application[] = [
     description:
       "有給休暇を取得する場合は、#人事チャンネルで申請してください。",
     notes: "希望日の5営業日前までに申請すること。",
-    isPublished: true,
+    isPublished: false,
   },
   {
     id: "3",
@@ -81,7 +81,7 @@ export const mockApplications: Application[] = [
     submissionUrl: "mailto:soumu@company.com",
     description: "業務で必要な備品の購入申請をします。",
     notes: "5万円以上の場合は部門長の承認が必要です。",
-    isPublished: true,
+    isPublished: false,
   },
   {
     id: "5",

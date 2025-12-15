@@ -1,5 +1,5 @@
 import Header from "./Header";
-import { mockMessages, type Message } from "../lib/mockData";
+import { type Message } from "../lib/mockData";
 import { Badge } from "./ui/badge";
 import { MessageSquare } from "lucide-react";
 
