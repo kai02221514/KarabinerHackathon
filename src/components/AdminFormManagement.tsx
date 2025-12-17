@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Header from "./Header";
-import { mockApplications, type Application } from "../lib/mockData";
+import { type Application } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Input } from "./ui/input";
@@ -32,7 +32,7 @@ export default function AdminFormManagement({
   const [searchQuery, setSearchQuery] = useState("");
 
   // フィルタリング
-  const filteredApplications = mockApplications.filter((app) => {
+  const filteredApplications = applications.filter((app) => {
     const matchesSearch =
       app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -183,18 +183,18 @@ export default function AdminFormManagement({
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="text-gray-600 mb-2">登録フォーム数</div>
-            <div>{mockApplications.length}件</div>
+            <div>{applications.length}件</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="text-gray-600 mb-2">公開中</div>
             <div className="text-green-600">
-              {mockApplications.filter((app) => app.isPublished).length}件
+              {applications.filter((app) => app.isPublished).length}件
             </div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="text-gray-600 mb-2">非公開</div>
             <div className="text-gray-600">
-              {mockApplications.filter((app) => !app.isPublished).length}件
+              {applications.filter((app) => !app.isPublished).length}件
             </div>
           </div>
         </div>
