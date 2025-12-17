@@ -6,6 +6,7 @@ import { healthRoutes } from "./routes/health.ts"; // ヘルスチェック
 import { adminRoutes } from "./routes/admin.ts";
 import { messageRoutes } from "./routes/messages.ts";
 import { applicationRoutes } from "./routes/applications.ts";
+import { myApplicationRoutes } from "./routes/myApplications.ts";
 
 export function createApp() {
   const app = new Hono(); // Hono アプリインスタンスを生成
@@ -30,6 +31,7 @@ export function createApp() {
   app.route("/", adminRoutes);
   app.route("/", messageRoutes);
   app.route("/", applicationRoutes);
+  app.route("/", myApplicationRoutes);
 
   return app; // 完成したアプリを返す
 }

@@ -16,14 +16,14 @@ import {
   type MyApplicationItem,
   type Message,
   type Application,
-  type UserProfile,
-  mockApplications,
-  mockMyApplicationItems,
-  mockMessages,
-  mockUserProfiles,
 } from "./lib/mockData";
 import { toast, Toaster } from "sonner";
-import { applicationsApi, authApi, messagesApi } from "./lib/api";
+import {
+  applicationsApi,
+  authApi,
+  messagesApi,
+  myApplicationsApi,
+} from "./lib/api";
 
 type UserRole = "employee" | "admin";
 
@@ -58,7 +58,7 @@ export default function App() {
   const [editingFormId, setEditingFormId] = useState<string | null>(null);
   const [myApplicationItems, setMyApplicationItems] = useState<
     MyApplicationItem[]
-  >(mockMyApplicationItems);
+  >([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
@@ -101,12 +101,14 @@ export default function App() {
   // データ読み込み
   const loadData = async () => {
     try {
-      const [appsRes, messagesRes] = await Promise.all([
+      const [appsRes, myAppsRes, messagesRes] = await Promise.all([
         applicationsApi.getAll(),
+        myApplicationsApi.getAll(),
         messagesApi.getAll(),
       ]);
 
       setApplications(appsRes.applications || []);
+      setMyApplicationItems(myAppsRes.items || []);
       setMessages(messagesRes.messages || []);
     } catch (error) {
       console.log("Load data error:", error);
@@ -184,35 +186,46 @@ export default function App() {
     setEditingFormId(id);
     setCurrentPage("admin-form-editor");
   };
-  const addToMyApplications = (
+
+  const addToMyApplications = async (
     applicationId: string,
     title: string,
     memo: string,
   ) => {
     if (!currentUser) return;
 
-    const newItem: MyApplicationItem = {
-      id: `item-${Date.now()}`,
-      applicationId,
-      userId: currentUser.id,
-      title,
-      memo,
-      isCompleted: false,
-      addedAt: new Date().toISOString(),
-      completedAt: null,
-    };
-
-    setMyApplicationItems((prev) => [newItem, ...prev]);
-    toast.success("マイ申請に追加しました");
+    try {
+      const { item } = await myApplicationsApi.add(applicationId, title, memo);
+      setMyApplicationItems((prev) => [item, ...prev]);
+      toast.success("マイ申請に追加しました");
+    } catch (error: any) {
+      console.log("Add to my applications error:", error);
+      toast.error("マイ申請への追加に失敗しました");
+    }
   };
 
-  const updateMyApplications = (items: MyApplicationItem[]) => {
+  const updateMyApplications = async (items: MyApplicationItem[]) => {
     setMyApplicationItems(items);
+
+    // 更新された項目をバックエンドに保存
+    try {
+      for (const item of items) {
+        await myApplicationsApi.update(item.id, item);
+      }
+    } catch (error: any) {
+      console.log("Update my applications error:", error);
+      toast.error("マイ申請の更新に失敗しました");
+    }
   };
 
   const deleteMyApplication = (itemId: string) => {
     setMyApplicationItems((prev) => prev.filter((item) => item.id !== itemId));
-    toast.success("マイ申請から削除しました");
+
+    // バックエンドからも削除
+    myApplicationsApi.delete(itemId).catch((error: any) => {
+      console.log("Delete my application error:", error);
+      toast.error("マイ申請の削除に失敗しました");
+    });
   };
 
   const saveApplication = async (
@@ -263,23 +276,6 @@ export default function App() {
       console.log("Send message error:", error);
       toast.error("メッセージの送信に失敗しました");
     }
-  };
-
-  const markMessagesAsRead = (senderId: string) => {
-    if (!currentUser) return;
-
-    setMessages((prev) =>
-      prev.map((msg) => {
-        if (
-          msg.senderId === senderId &&
-          msg.receiverId === currentUser.id &&
-          !msg.isRead
-        ) {
-          return { ...msg, isRead: true };
-        }
-        return msg;
-      }),
-    );
   };
 
   // 未読メッセージ数を取得
