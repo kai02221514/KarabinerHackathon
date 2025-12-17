@@ -110,7 +110,6 @@ export default function AdminHome({
                         </div>
                       </div>
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
