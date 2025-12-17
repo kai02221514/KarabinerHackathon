@@ -196,16 +196,6 @@ export default function EmployeeApplicationDetail({
                   マイ申請に追加
                 </Button>
               </div>
-
-              {!isSubmitted && (
-                <Button
-                  variant="outline"
-                  onClick={handleMarkAsSubmitted}
-                  className="w-full"
-                >
-                  提出済みにマークする
-                </Button>
-              )}
             </div>
           </div>
         </div>
