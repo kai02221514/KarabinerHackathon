@@ -5,3 +5,4 @@ export { apiRequest } from "./http.ts"; // 共通 fetch ラッパー
 export { authApi } from "./modules/auth.ts"; // auth API モジュール
 export { usersApi } from "./modules/users.ts"; // users API モジュール
 export { messagesApi } from "./modules/messages.ts"; // messages API モジュール
+export { applicationsApi } from "./modules/applications.ts"; // applications API モジュール
