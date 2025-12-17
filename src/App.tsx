@@ -109,8 +109,8 @@ export default function App() {
       setApplications(appsRes.applications || []);
       setMessages(messagesRes.messages || []);
     } catch (error) {
-      console.log('Load data error:', error);
-      toast.error('データの読み込みに失敗しました');
+      console.log("Load data error:", error);
+      toast.error("データの読み込みに失敗しました");
     }
   };
 
@@ -215,27 +215,30 @@ export default function App() {
     toast.success("マイ申請から削除しました");
   };
 
-  const saveApplication = async (formData: Omit<Application, 'id'>, formId: string | null) => {
+  const saveApplication = async (
+    formData: Omit<Application, "id">,
+    formId: string | null,
+  ) => {
     try {
       const data = formId ? { ...formData, id: formId } : formData;
       const { application } = await applicationsApi.save(data);
 
       if (formId) {
         // 既存フォームの更新
-        setApplications(prev => prev.map(app =>
-          app.id === formId ? application : app
-        ));
-        toast.success('申請フォームを更新しました');
+        setApplications((prev) =>
+          prev.map((app) => (app.id === formId ? application : app)),
+        );
+        toast.success("申請フォームを更新しました");
       } else {
         // 新規フォームの追加
-        setApplications(prev => [...prev, application]);
-        toast.success('申請フォームを作成しました');
+        setApplications((prev) => [...prev, application]);
+        toast.success("申請フォームを作成しました");
       }
 
-      navigateTo('admin-forms');
+      navigateTo("admin-forms");
     } catch (error: any) {
-      console.log('Save application error:', error);
-      toast.error('申請フォームの保存に失敗しました');
+      console.log("Save application error:", error);
+      toast.error("申請フォームの保存に失敗しました");
     }
   };
 
