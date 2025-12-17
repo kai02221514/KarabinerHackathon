@@ -23,7 +23,7 @@ import {
   mockUserProfiles,
 } from "./lib/mockData";
 import { toast, Toaster } from "sonner";
-import { authApi, messagesApi } from "./lib/api";
+import { applicationsApi, authApi, messagesApi } from "./lib/api";
 
 type UserRole = "employee" | "admin";
 
@@ -63,9 +63,7 @@ export default function App() {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
   const [selectedUserEmail, setSelectedUserEmail] = useState<string>("");
-  const [applications, setApplications] =
-    useState<Application[]>(mockApplications);
-  const [users, setUsers] = useState<UserProfile[]>(mockUserProfiles);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 既読処理済みメッセージIDを追跡
@@ -103,8 +101,12 @@ export default function App() {
   // データ読み込み
   const loadData = async () => {
     try {
-      const [messagesRes] = await Promise.all([messagesApi.getAll()]);
+      const [appsRes, messagesRes] = await Promise.all([
+        applicationsApi.getAll(),
+        messagesApi.getAll(),
+      ]);
 
+      setApplications(appsRes.applications || []);
       setMessages(messagesRes.messages || []);
     } catch (error) {
       console.log("Load data error:", error);
@@ -217,24 +219,27 @@ export default function App() {
     formData: Omit<Application, "id">,
     formId: string | null,
   ) => {
-    if (formId) {
-      // 既存フォームの更新
-      setApplications((prev) =>
-        prev.map((app) =>
-          app.id === formId ? { ...formData, id: formId } : app,
-        ),
-      );
-      toast.success("申請フォームを更新しました");
-    } else {
-      // 新規フォームの追加
-      const newApplication: Application = {
-        ...formData,
-        id: `app-${Date.now()}`,
-      };
-      setApplications((prev) => [...prev, newApplication]);
-      toast.success("申請フォームを作成しました");
+    try {
+      const data = formId ? { ...formData, id: formId } : formData;
+      const { application } = await applicationsApi.save(data);
+
+      if (formId) {
+        // 既存フォームの更新
+        setApplications((prev) =>
+          prev.map((app) => (app.id === formId ? application : app)),
+        );
+        toast.success("申請フォームを更新しました");
+      } else {
+        // 新規フォームの追加
+        setApplications((prev) => [...prev, application]);
+        toast.success("申請フォームを作成しました");
+      }
+
+      navigateTo("admin-forms");
+    } catch (error: any) {
+      console.log("Save application error:", error);
+      toast.error("申請フォームの保存に失敗しました");
     }
-    navigateTo("admin-forms");
   };
 
   const viewUserChat = (
