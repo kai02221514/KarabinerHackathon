@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Header from "./Header";
 import {
-  mockMyApplicationItems,
   type Application,
   type MyApplicationItem,
 } from "../lib/mockData";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Check, ExternalLink, Trash2 } from "lucide-react";
 
@@ -50,14 +48,14 @@ export default function EmployeeMyApplications({
   );
   const [completedItems, setCompletedItems] = useState<Set<string>>(
     new Set(
-      mockMyApplicationItems
+      items
         .filter((item) => item.isCompleted)
         .map((item) => item.id),
     ),
   );
 
   // ユーザーのマイ申請アイテムを取得
-  const myItems = mockMyApplicationItems
+  const myItems = items
     .map((item) => {
       const app = applications.find((a) => a.id === item.applicationId);
       return {
@@ -83,23 +81,25 @@ export default function EmployeeMyApplications({
   });
 
   const handleToggleComplete = (itemId: string) => {
-    setCompletedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId);
-      } else {
-        newSet.add(itemId);
-      }
-      return newSet;
-    });
+    const newCompletedItems = new Set(completedItems);
+    if (newCompletedItems.has(itemId)) {
+      newCompletedItems.delete(itemId);
+    } else {
+      newCompletedItems.add(itemId);
+    }
+    setCompletedItems(newCompletedItems);
+
+    // 親コンポーネントに更新を通知
+    const updatedItems = items.map((item) =>
+      item.id === itemId
+        ? { ...item, isCompleted: newCompletedItems.has(itemId) }
+        : item
+    );
+    onUpdateMyApplications(updatedItems);
   };
 
   const handleOpenSubmissionUrl = (url: string) => {
-    if (url.startsWith("http")) {
-      window.open(url, "_blank");
-    } else {
-      window.location.href = url;
-    }
+
   };
 
   const incompleteCount = myItems.filter(
@@ -126,31 +126,28 @@ export default function EmployeeMyApplications({
           <div className="flex gap-2">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                filter === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-md transition-colors ${filter === "all"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
             >
               全て ({myItems.length})
             </button>
             <button
               onClick={() => setFilter("incomplete")}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                filter === "incomplete"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-md transition-colors ${filter === "incomplete"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
             >
               未完了 ({incompleteCount})
             </button>
             <button
               onClick={() => setFilter("completed")}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                filter === "completed"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              className={`px-4 py-2 rounded-md transition-colors ${filter === "completed"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
             >
               完了 ({completedCount})
             </button>
@@ -171,11 +168,10 @@ export default function EmployeeMyApplications({
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-lg border-2 p-4 transition-all ${
-                    isCompleted
-                      ? "border-gray-200 opacity-60"
-                      : "border-blue-200 hover:shadow-md"
-                  }`}
+                  className={`bg-white rounded-lg border-2 p-4 transition-all ${isCompleted
+                    ? "border-gray-200 opacity-60"
+                    : "border-blue-200 hover:shadow-md"
+                    }`}
                 >
                   {/* カードヘッダー */}
                   <div className="flex items-start justify-between mb-3">
@@ -188,11 +184,10 @@ export default function EmployeeMyApplications({
                     </div>
                     <button
                       onClick={() => handleToggleComplete(item.id)}
-                      className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
-                        isCompleted
-                          ? "bg-green-600 border-green-600"
-                          : "border-gray-300 hover:border-gray-400"
-                      }`}
+                      className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${isCompleted
+                        ? "bg-green-600 border-green-600"
+                        : "border-gray-300 hover:border-gray-400"
+                        }`}
                     >
                       {isCompleted && <Check className="h-4 w-4 text-white" />}
                     </button>
@@ -216,9 +211,7 @@ export default function EmployeeMyApplications({
                   {/* アクションボタン */}
                   <div className="space-y-2">
                     <Button
-                      onClick={() =>
-                        handleOpenSubmissionUrl(item.submissionUrl)
-                      }
+                      onClick={() => onViewDetail(item.applicationId)}
                       variant="outline"
                       size="sm"
                       className="w-full"
