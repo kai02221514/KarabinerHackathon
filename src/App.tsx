@@ -18,7 +18,12 @@ import {
   type Application,
 } from "./lib/mockData";
 import { toast, Toaster } from "sonner";
-import { applicationsApi, authApi, messagesApi, myApplicationsApi } from "./lib/api";
+import {
+  applicationsApi,
+  authApi,
+  messagesApi,
+  myApplicationsApi,
+} from "./lib/api";
 
 type UserRole = "employee" | "admin";
 
@@ -51,7 +56,9 @@ export default function App() {
     string | null
   >(null);
   const [editingFormId, setEditingFormId] = useState<string | null>(null);
-  const [myApplicationItems, setMyApplicationItems] = useState<MyApplicationItem[]>([]);
+  const [myApplicationItems, setMyApplicationItems] = useState<
+    MyApplicationItem[]
+  >([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
@@ -104,8 +111,8 @@ export default function App() {
       setMyApplicationItems(myAppsRes.items || []);
       setMessages(messagesRes.messages || []);
     } catch (error) {
-      console.log('Load data error:', error);
-      toast.error('データの読み込みに失敗しました');
+      console.log("Load data error:", error);
+      toast.error("データの読み込みに失敗しました");
     }
   };
 
@@ -180,16 +187,20 @@ export default function App() {
     setCurrentPage("admin-form-editor");
   };
 
-  const addToMyApplications = async (applicationId: string, title: string, memo: string) => {
+  const addToMyApplications = async (
+    applicationId: string,
+    title: string,
+    memo: string,
+  ) => {
     if (!currentUser) return;
 
     try {
       const { item } = await myApplicationsApi.add(applicationId, title, memo);
-      setMyApplicationItems(prev => [item, ...prev]);
-      toast.success('マイ申請に追加しました');
+      setMyApplicationItems((prev) => [item, ...prev]);
+      toast.success("マイ申請に追加しました");
     } catch (error: any) {
-      console.log('Add to my applications error:', error);
-      toast.error('マイ申請への追加に失敗しました');
+      console.log("Add to my applications error:", error);
+      toast.error("マイ申請への追加に失敗しました");
     }
   };
 
@@ -202,8 +213,8 @@ export default function App() {
         await myApplicationsApi.update(item.id, item);
       }
     } catch (error: any) {
-      console.log('Update my applications error:', error);
-      toast.error('マイ申請の更新に失敗しました');
+      console.log("Update my applications error:", error);
+      toast.error("マイ申請の更新に失敗しました");
     }
   };
 
@@ -212,8 +223,8 @@ export default function App() {
 
     // バックエンドからも削除
     myApplicationsApi.delete(itemId).catch((error: any) => {
-      console.log('Delete my application error:', error);
-      toast.error('マイ申請の削除に失敗しました');
+      console.log("Delete my application error:", error);
+      toast.error("マイ申請の削除に失敗しました");
     });
   };
 

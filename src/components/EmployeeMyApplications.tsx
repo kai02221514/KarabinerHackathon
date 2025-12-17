@@ -1,9 +1,6 @@
 import { useState } from "react";
 import Header from "./Header";
-import {
-  type Application,
-  type MyApplicationItem,
-} from "../lib/mockData";
+import { type Application, type MyApplicationItem } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { Check, ExternalLink, Trash2 } from "lucide-react";
 
@@ -47,11 +44,7 @@ export default function EmployeeMyApplications({
     "all",
   );
   const [completedItems, setCompletedItems] = useState<Set<string>>(
-    new Set(
-      items
-        .filter((item) => item.isCompleted)
-        .map((item) => item.id),
-    ),
+    new Set(items.filter((item) => item.isCompleted).map((item) => item.id)),
   );
 
   // ユーザーのマイ申請アイテムを取得
@@ -93,14 +86,12 @@ export default function EmployeeMyApplications({
     const updatedItems = items.map((item) =>
       item.id === itemId
         ? { ...item, isCompleted: newCompletedItems.has(itemId) }
-        : item
+        : item,
     );
     onUpdateMyApplications(updatedItems);
   };
 
-  const handleOpenSubmissionUrl = (url: string) => {
-
-  };
+  const handleOpenSubmissionUrl = (url: string) => {};
 
   const incompleteCount = myItems.filter(
     (item) => !completedItems.has(item.id),
@@ -126,28 +117,31 @@ export default function EmployeeMyApplications({
           <div className="flex gap-2">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-md transition-colors ${filter === "all"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                filter === "all"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
             >
               全て ({myItems.length})
             </button>
             <button
               onClick={() => setFilter("incomplete")}
-              className={`px-4 py-2 rounded-md transition-colors ${filter === "incomplete"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                filter === "incomplete"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
             >
               未完了 ({incompleteCount})
             </button>
             <button
               onClick={() => setFilter("completed")}
-              className={`px-4 py-2 rounded-md transition-colors ${filter === "completed"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                filter === "completed"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
             >
               完了 ({completedCount})
             </button>
@@ -168,10 +162,11 @@ export default function EmployeeMyApplications({
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-lg border-2 p-4 transition-all ${isCompleted
-                    ? "border-gray-200 opacity-60"
-                    : "border-blue-200 hover:shadow-md"
-                    }`}
+                  className={`bg-white rounded-lg border-2 p-4 transition-all ${
+                    isCompleted
+                      ? "border-gray-200 opacity-60"
+                      : "border-blue-200 hover:shadow-md"
+                  }`}
                 >
                   {/* カードヘッダー */}
                   <div className="flex items-start justify-between mb-3">
@@ -184,10 +179,11 @@ export default function EmployeeMyApplications({
                     </div>
                     <button
                       onClick={() => handleToggleComplete(item.id)}
-                      className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${isCompleted
-                        ? "bg-green-600 border-green-600"
-                        : "border-gray-300 hover:border-gray-400"
-                        }`}
+                      className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
+                        isCompleted
+                          ? "bg-green-600 border-green-600"
+                          : "border-gray-300 hover:border-gray-400"
+                      }`}
                     >
                       {isCompleted && <Check className="h-4 w-4 text-white" />}
                     </button>

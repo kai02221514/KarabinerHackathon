@@ -33,9 +33,9 @@ myApplicationRoutes.get(`${API_PREFIX}/my-applications`, async (c) => {
   // Supabase の my_applications テーブルから
   // 現在ログインしているユーザーのレコードのみを選択するクエリを実行
   const { data, error } = await supabase
-    .from("my_applications")        // 操作対象テーブルを指定
-    .select("*")                    // すべてのカラムを取得
-    .eq("user_id", user.id)         // user_id がログインユーザーのものに一致する行のみ
+    .from("my_applications") // 操作対象テーブルを指定
+    .select("*") // すべてのカラムを取得
+    .eq("user_id", user.id) // user_id がログインユーザーのものに一致する行のみ
     .order("added_at", { ascending: true }); // 追加日時の昇順で並べる
 
   // DB アクセスでエラーが発生した場合はログ出力し、500 Internal Server Error を返す
@@ -78,14 +78,14 @@ myApplicationRoutes.post(`${API_PREFIX}/my-applications`, async (c) => {
 
     // DB my_applications テーブルに挿入するためのデータオブジェクトを構築
     const insertData = {
-      id: itemId,                // 主キー
-      user_id: user.id,          // ログイン中のユーザーID
+      id: itemId, // 主キー
+      user_id: user.id, // ログイン中のユーザーID
       application_id: applicationId, // 紐付く申請種別（applications.id）
-      title,                     // ユーザーがつけるタイトル
-      memo: memo ?? null,        // メモ、省略された場合は null
-      is_completed: false,       // 追加時点では未完了扱い
-      added_at: addedAt,         // 追加日時
-      completed_at: null,        // 完了日時はまだないので null
+      title, // ユーザーがつけるタイトル
+      memo: memo ?? null, // メモ、省略された場合は null
+      is_completed: false, // 追加時点では未完了扱い
+      added_at: addedAt, // 追加日時
+      completed_at: null, // 完了日時はまだないので null
     };
 
     // Supabase に対して insert を実行し、挿入後の行を1件取得
@@ -119,59 +119,58 @@ myApplicationRoutes.post(`${API_PREFIX}/my-applications`, async (c) => {
 
 // HTTP PUT /{API_PREFIX}/my-applications/:id に対応
 myApplicationRoutes.put(`${API_PREFIX}/my-applications/:id`, async (c) => {
- // 認証ヘッダからユーザー情報を取得
- const user = await authenticate(c.req.header("Authorization") ?? null); // 認証確認
+  // 認証ヘッダからユーザー情報を取得
+  const user = await authenticate(c.req.header("Authorization") ?? null); // 認証確認
 
- // 認証されていない場合は 401
- if (!user) {
-   return c.json({ error: "Unauthorized" }, 401);
- }
+  // 認証されていない場合は 401
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
 
- try {
-   // URL パラメータから itemId を取得
-   const itemId = c.req.param("id"); // パスから ID 取得
+  try {
+    // URL パラメータから itemId を取得
+    const itemId = c.req.param("id"); // パスから ID 取得
 
-   // リクエストボディを JSON として取得
-   // ここには title / memo / isCompleted / addedAt / completedAt などが入る想定
-   const updates = await c.req.json(); // リクエストボディ取得
+    // リクエストボディを JSON として取得
+    // ここには title / memo / isCompleted / addedAt / completedAt などが入る想定
+    const updates = await c.req.json(); // リクエストボディ取得
 
-   // DB 側のカラム名に合わせて更新内容を詰め直すためのオブジェクト
-   const dbUpdates: any = {}; // DB に合わせた更新データ
+    // DB 側のカラム名に合わせて更新内容を詰め直すためのオブジェクト
+    const dbUpdates: any = {}; // DB に合わせた更新データ
 
-   // それぞれのフィールドが送られてきた場合のみ DB 更新対象に含める
-   if ("title" in updates) dbUpdates.title = updates.title;
-   if ("memo" in updates) dbUpdates.memo = updates.memo;
-   if ("isCompleted" in updates)
-     dbUpdates.is_completed = !!updates.isCompleted;
-   if ("addedAt" in updates) dbUpdates.added_at = updates.addedAt;
-   if ("completedAt" in updates)
-     dbUpdates.completed_at = updates.completedAt;
+    // それぞれのフィールドが送られてきた場合のみ DB 更新対象に含める
+    if ("title" in updates) dbUpdates.title = updates.title;
+    if ("memo" in updates) dbUpdates.memo = updates.memo;
+    if ("isCompleted" in updates)
+      dbUpdates.is_completed = !!updates.isCompleted;
+    if ("addedAt" in updates) dbUpdates.added_at = updates.addedAt;
+    if ("completedAt" in updates) dbUpdates.completed_at = updates.completedAt;
 
-   // Supabase で更新クエリを実行
-   const { data, error } = await supabase
-     .from("my_applications")
-     .update(dbUpdates)
-     .eq("id", itemId)      // 主キーが一致
-     .eq("user_id", user.id) // かつ自分のレコードのみ
-     .select("*")
-     .maybeSingle();
+    // Supabase で更新クエリを実行
+    const { data, error } = await supabase
+      .from("my_applications")
+      .update(dbUpdates)
+      .eq("id", itemId) // 主キーが一致
+      .eq("user_id", user.id) // かつ自分のレコードのみ
+      .select("*")
+      .maybeSingle();
 
-   // 更新に失敗した、もしくは行が見つからなかった場合
-   if (error || !data) {
-     console.log("Update my application error:", error);
-     return c.json({ error: "Failed to update item" }, 500);
-   }
+    // 更新に失敗した、もしくは行が見つからなかった場合
+    if (error || !data) {
+      console.log("Update my application error:", error);
+      return c.json({ error: "Failed to update item" }, 500);
+    }
 
-   // 取得した行を API 用に整形
-   const item = mapMyApplicationRow(data);
+    // 取得した行を API 用に整形
+    const item = mapMyApplicationRow(data);
 
-   // 更新済みの item を返却
-   return c.json({ item });
- } catch (error) {
-   // 予期せぬ例外発生時のログとエラーレスポンス
-   console.log("Update my application error:", error);
-   return c.json({ error: "Failed to update item" }, 500);
- }
+    // 更新済みの item を返却
+    return c.json({ item });
+  } catch (error) {
+    // 予期せぬ例外発生時のログとエラーレスポンス
+    console.log("Update my application error:", error);
+    return c.json({ error: "Failed to update item" }, 500);
+  }
 });
 
 // ========================
@@ -179,40 +178,37 @@ myApplicationRoutes.put(`${API_PREFIX}/my-applications/:id`, async (c) => {
 // ========================
 
 // HTTP DELETE /{API_PREFIX}/my-applications/:id に対応
-myApplicationRoutes.delete(
-  `${API_PREFIX}/my-applications/:id`,
-  async (c) => {
-    // 認証ヘッダからユーザー情報を取得
-    const user = await authenticate(c.req.header("Authorization") ?? null); // 認証確認
+myApplicationRoutes.delete(`${API_PREFIX}/my-applications/:id`, async (c) => {
+  // 認証ヘッダからユーザー情報を取得
+  const user = await authenticate(c.req.header("Authorization") ?? null); // 認証確認
 
-    // 認証されていない場合は 401
-    if (!user) {
-      return c.json({ error: "Unauthorized" }, 401);
-    }
+  // 認証されていない場合は 401
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
 
-    try {
-      // URL パラメータから削除対象の itemId を取得
-      const itemId = c.req.param("id"); // パスから ID 取得
+  try {
+    // URL パラメータから削除対象の itemId を取得
+    const itemId = c.req.param("id"); // パスから ID 取得
 
-      // Supabase に対して delete クエリを発行
-      const { error } = await supabase
-        .from("my_applications")
-        .delete()
-        .eq("id", itemId)
-        .eq("user_id", user.id); // 自分のレコードに限定
+    // Supabase に対して delete クエリを発行
+    const { error } = await supabase
+      .from("my_applications")
+      .delete()
+      .eq("id", itemId)
+      .eq("user_id", user.id); // 自分のレコードに限定
 
-      // 削除時にエラーになった場合
-      if (error) {
-        console.log("Delete my application error:", error);
-        return c.json({ error: "Failed to delete item" }, 500);
-      }
-
-      // 正常終了時は { success: true } だけ返す
-      return c.json({ success: true });
-    } catch (error) {
-      // 予期せぬ例外に対するログとエラーレスポンス
+    // 削除時にエラーになった場合
+    if (error) {
       console.log("Delete my application error:", error);
       return c.json({ error: "Failed to delete item" }, 500);
     }
-  },
-);
+
+    // 正常終了時は { success: true } だけ返す
+    return c.json({ success: true });
+  } catch (error) {
+    // 予期せぬ例外に対するログとエラーレスポンス
+    console.log("Delete my application error:", error);
+    return c.json({ error: "Failed to delete item" }, 500);
+  }
+});
