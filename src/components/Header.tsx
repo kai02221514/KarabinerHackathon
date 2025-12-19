@@ -83,6 +83,16 @@ export default function Header({
                 >
                   マイ申請
                 </button>
+                <button
+                  onClick={() => onNavigate("employee-message-detail")}
+                  className={` ${
+                    currentPage === "employee-message-detail"
+                      ? "text-blue-600"
+                      : "text-gray-700"
+                  }`}
+                >
+                  メッセージ
+                </button>
               </nav>
             )}
 
@@ -248,6 +258,22 @@ export default function Header({
                         }`}
                       >
                         マイ申請
+                      </motion.button>
+                      <motion.button
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        onClick={() => {
+                          onNavigate("employee-message-detail");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`text-left py-2 text-gray-700 hover:text-gray-900 ${
+                          currentPage === "employee-message-detail"
+                            ? "text-blue-600"
+                            : ""
+                        }`}
+                      >
+                        メッセージ
                       </motion.button>
                     </nav>
                   )}
