@@ -16,7 +16,7 @@ interface User {
   role: "employee" | "admin";
 }
 
-interface EmployeeUser {
+interface Users {
   id: string;
   name: string;
   email: string;
@@ -39,7 +39,7 @@ export default function AdminUserList({
   messages,
 }: AdminUserListProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [employees, setEmployees] = useState<EmployeeUser[]>([]);
+  const [users, setUsers] = useState<Users[]>([]);
   const [loading, setLoading] = useState(true);
 
   // ユーザー一覧を取得
@@ -47,11 +47,9 @@ export default function AdminUserList({
     const loadUsers = async () => {
       try {
         const { users } = await usersApi.getAll();
-        // 管理者以外のユーザーを取得
-        const employeeUsers = users.filter(
-          (u: EmployeeUser) => u.role === "employee",
-        );
-        setEmployees(employeeUsers);
+        // 自分を除く全ての管理者と従業員を取得
+        const filteredUsers = users.filter((u: Users) => u.id !== user.id);
+        setUsers(filteredUsers);
       } catch (error: any) {
         console.log("Load users error:", error);
         toast.error("ユーザー一覧の取得に失敗しました");
@@ -87,10 +85,10 @@ export default function AdminUserList({
   };
 
   // 検索フィルタリング
-  const filteredEmployees = employees.filter(
-    (emp) =>
-      emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchQuery.toLowerCase()),
+  const filteredUsers = users.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -121,7 +119,7 @@ export default function AdminUserList({
 
         {/* ユーザーリスト */}
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-          {filteredEmployees.length === 0 ? (
+          {filteredUsers.length === 0 ? (
             <div className="p-8 text-center text-gray-500">
               {searchQuery
                 ? "該当するユーザーが見つかりませんでした"
@@ -149,21 +147,21 @@ export default function AdminUserList({
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredEmployees.map((emp, index) => {
-                      const unreadCount = getUnreadCount(emp.id);
-                      const latestMessage = getLatestMessage(emp.id);
+                    {filteredUsers.map((user, index) => {
+                      const unreadCount = getUnreadCount(user.id);
+                      const latestMessage = getLatestMessage(user.id);
                       return (
                         <tr
-                          key={emp.id}
+                          key={user.id}
                           className={`hover:bg-gray-50 ${
-                            index !== filteredEmployees.length - 1
+                            index !== filteredUsers.length - 1
                               ? "border-b border-gray-200"
                               : ""
                           }`}
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              {emp.name}
+                              {user.name}
                               {unreadCount > 0 && (
                                 <Badge variant="default" className="bg-red-600">
                                   {unreadCount}
@@ -172,7 +170,7 @@ export default function AdminUserList({
                             </div>
                           </td>
                           <td className="px-6 py-4 text-gray-600">
-                            {emp.email}
+                            {user.email}
                           </td>
                           <td className="px-6 py-4 text-gray-600">
                             {latestMessage ? (
@@ -191,7 +189,7 @@ export default function AdminUserList({
                               variant="outline"
                               size="sm"
                               onClick={() =>
-                                onViewUserChat(emp.id, emp.name, emp.email)
+                                onViewUserChat(user.id, user.name, user.email)
                               }
                             >
                               <MessageSquare className="mr-1 h-3 w-3" />
@@ -207,14 +205,14 @@ export default function AdminUserList({
 
               {/* モバイル: カード表示 */}
               <div className="md:hidden">
-                {filteredEmployees.map((emp, index) => {
-                  const unreadCount = getUnreadCount(emp.id);
-                  const latestMessage = getLatestMessage(emp.id);
+                {filteredUsers.map((user, index) => {
+                  const unreadCount = getUnreadCount(user.id);
+                  const latestMessage = getLatestMessage(user.id);
                   return (
                     <div
-                      key={emp.id}
+                      key={user.id}
                       className={`p-4 ${
-                        index !== filteredEmployees.length - 1
+                        index !== filteredUsers.length - 1
                           ? "border-b border-gray-200"
                           : ""
                       }`}
@@ -222,7 +220,7 @@ export default function AdminUserList({
                       <div className="flex items-start justify-between mb-2">
                         <div className="flex-1 pr-2">
                           <div className="flex items-center gap-2 mb-1">
-                            <span>{emp.name}</span>
+                            <span>{user.name}</span>
                             {unreadCount > 0 && (
                               <Badge
                                 variant="default"
@@ -233,7 +231,7 @@ export default function AdminUserList({
                             )}
                           </div>
                           <div className="text-gray-600 text-sm">
-                            {emp.email}
+                            {user.email}
                           </div>
                           {latestMessage && (
                             <div className="text-gray-600 text-sm mt-2 truncate">
@@ -247,7 +245,7 @@ export default function AdminUserList({
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                          onViewUserChat(emp.id, emp.name, emp.email)
+                          onViewUserChat(user.id, user.name, user.email)
                         }
                         className="w-full mt-2"
                       >
@@ -267,8 +265,7 @@ export default function AdminUserList({
           <div className="bg-white rounded-lg border border-gray-200 p-6">
             <div className="text-gray-600 mb-2">未読メッセージ</div>
             <div className="text-red-600">
-              {employees.reduce((sum, emp) => sum + getUnreadCount(emp.id), 0)}
-              件
+              {users.reduce((sum, user) => sum + getUnreadCount(user.id), 0)}件
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import Header from "./Header";
 import { type Application } from "../lib/mockData";
 import { Button } from "./ui/button";
-import { FileText, CheckCircle, Clock } from "lucide-react";
+import { FileText, Clock } from "lucide-react";
 
 interface User {
   id: string;
@@ -110,7 +110,6 @@ export default function AdminHome({
                         </div>
                       </div>
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();

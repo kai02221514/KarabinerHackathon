@@ -108,8 +108,11 @@ export default function EmployeeApplicationDetail({
     // 成功通知を表示（クリックで遷移）
     toast.success("マイ申請に追加しました", {
       duration: 3000,
-      onClick: () => {
-        onNavigate("employee-my-applications");
+      action: {
+        label: "マイ申請を開く",
+        onClick: () => {
+          onNavigate("employee-my-applications");
+        },
       },
     });
   };
@@ -193,16 +196,6 @@ export default function EmployeeApplicationDetail({
                   マイ申請に追加
                 </Button>
               </div>
-
-              {!isSubmitted && (
-                <Button
-                  variant="outline"
-                  onClick={handleMarkAsSubmitted}
-                  className="w-full"
-                >
-                  提出済みにマークする
-                </Button>
-              )}
             </div>
           </div>
         </div>
