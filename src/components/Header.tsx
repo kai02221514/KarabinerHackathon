@@ -43,7 +43,7 @@ export default function Header({
               )}
               {role === "admin" && (
                 <>
-                  {(currentPage === "admin-home") && "ホーム"}
+                  {currentPage === "admin-home" && "ホーム"}
                   {currentPage === "admin-forms" && "フォーム管理"}
                   {currentPage === "admin-users" && "メッセージ"}
                   {currentPage === "admin-user-chat" && "ユーザーチャット"}
@@ -67,7 +67,8 @@ export default function Header({
                 <button
                   onClick={() => onNavigate("employee-applications")}
                   className={` ${
-                    currentPage === "employee-applications" || currentPage === "employee-application-detail"
+                    currentPage === "employee-applications" ||
+                    currentPage === "employee-application-detail"
                       ? "text-blue-600"
                       : "text-gray-700"
                   }`}
@@ -87,7 +88,8 @@ export default function Header({
                 <button
                   onClick={() => onNavigate("employee-message-detail")}
                   className={` ${
-                    currentPage === "employee-message-detail" || currentPage === "employee-messages"
+                    currentPage === "employee-message-detail" ||
+                    currentPage === "employee-messages"
                       ? "text-blue-600"
                       : "text-gray-700"
                   }`}
