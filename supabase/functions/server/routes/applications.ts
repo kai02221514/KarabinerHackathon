@@ -209,11 +209,11 @@ applicationRoutes.post(`${API_PREFIX}/applications`, async (c) => {
 // フォーム削除
 applicationRoutes.delete(`${API_PREFIX}/applications/:id`, async (c) => {
   const user = await authenticate(c.req.header("Authorization") ?? null); // 認証確認
-  
+
   if (!user) {
-    return c.json({ error: 'Unauthorized' }, 401);
+    return c.json({ error: "Unauthorized" }, 401);
   }
-  
+
   try {
     // URL パラメータから削除対象の itemId を取得
     const applicationId = c.req.param("id"); // パスから ID 取得

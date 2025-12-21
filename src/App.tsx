@@ -260,13 +260,13 @@ export default function App() {
       await applicationsApi.delete(formId);
 
       // ローカルのstateから削除
-      setApplications(prev => prev.filter(app => app.id !== formId));
+      setApplications((prev) => prev.filter((app) => app.id !== formId));
 
-      toast.success('申請フォームを削除しました');
-      navigateTo('admin-forms');
+      toast.success("申請フォームを削除しました");
+      navigateTo("admin-forms");
     } catch (error: any) {
-      console.log('Delete application error:', error);
-      toast.error('申請フォームの削除に失敗しました');
+      console.log("Delete application error:", error);
+      toast.error("申請フォームの削除に失敗しました");
     }
   };
 

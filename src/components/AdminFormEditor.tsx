@@ -22,7 +22,7 @@ interface AdminFormEditorProps {
   onLogout: () => void;
   onSaveForm: (
     formData: Omit<Application, "id">,
-    formId: string | null
+    formId: string | null,
   ) => void;
   onDeleteForm?: (formId: string) => void;
 }
