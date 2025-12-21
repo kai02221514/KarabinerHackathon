@@ -24,6 +24,7 @@ interface AdminFormEditorProps {
     formData: Omit<Application, "id">,
     formId: string | null,
   ) => void;
+  onDeleteForm?: (formId: string) => void;
 }
 
 export default function AdminFormEditor({
@@ -33,6 +34,7 @@ export default function AdminFormEditor({
   onNavigate,
   onLogout,
   onSaveForm,
+  onDeleteForm,
 }: AdminFormEditorProps) {
   const existingForm = formId
     ? applications.find((app) => app.id === formId)
@@ -49,6 +51,7 @@ export default function AdminFormEditor({
   });
 
   const [isSaved, setIsSaved] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -68,6 +71,13 @@ export default function AdminFormEditor({
 
     // 保存処理を呼び出す
     onSaveForm(formData, formId);
+  };
+
+  const handleDelete = () => {
+    if (formId && onDeleteForm) {
+      onDeleteForm(formId);
+      onNavigate("admin-forms");
+    }
   };
 
   return (
@@ -186,9 +196,47 @@ export default function AdminFormEditor({
               >
                 キャンセル
               </Button>
+              {isEditMode && onDeleteForm && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="flex-1"
+                >
+                  削除
+                </Button>
+              )}
             </div>
           </form>
         </div>
+
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <h2 className="text-xl font-bold mb-4">フォームの削除</h2>
+              <p className="mb-4">
+                このフォームを削除しますか？この操作は取り消せません。
+              </p>
+              <div className="flex justify-end gap-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  キャンセル
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleDelete}
+                  className="ml-2"
+                >
+                  削除
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
