@@ -255,6 +255,21 @@ export default function App() {
     }
   };
 
+  const deleteApplication = async (formId: string) => {
+    try {
+      await applicationsApi.delete(formId);
+
+      // ローカルのstateから削除
+      setApplications(prev => prev.filter(app => app.id !== formId));
+
+      toast.success('申請フォームを削除しました');
+      navigateTo('admin-forms');
+    } catch (error: any) {
+      console.log('Delete application error:', error);
+      toast.error('申請フォームの削除に失敗しました');
+    }
+  };
+
   const viewUserChat = (
     userId: string,
     userName: string,
@@ -479,6 +494,7 @@ export default function App() {
               onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onSaveForm={saveApplication}
+              onDeleteForm={deleteApplication}
             />
           );
         case "admin-users":
