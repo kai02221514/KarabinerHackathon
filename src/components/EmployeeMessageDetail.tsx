@@ -57,7 +57,8 @@ export default function EmployeeMessageDetail({
   const adminId =
     adminMessage?.senderId ||
     messages.find((msg) => msg.senderId !== user.id)?.senderId ||
-    users.find((u)=>u.role==="admin")?.id || "abc123def";
+    users.find((u) => u.role === "admin")?.id ||
+    "abc123def";
 
   // このユーザーと管理者とのメッセージのみフィルター
   const chatMessages = messages

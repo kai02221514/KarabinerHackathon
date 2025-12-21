@@ -64,6 +64,7 @@ export default function App() {
   const [selectedUserName, setSelectedUserName] = useState<string>("");
   const [selectedUserEmail, setSelectedUserEmail] = useState<string>("");
   const [applications, setApplications] = useState<Application[]>([]);
+  const [previousPage, setPreviousPage] = useState<Page | null>(null);
   const [loading, setLoading] = useState(true);
 
   // 既読処理済みメッセージIDを追跡
@@ -174,10 +175,12 @@ export default function App() {
   };
 
   const navigateTo = (page: Page) => {
+    setPreviousPage(currentPage);
     setCurrentPage(page);
   };
 
   const viewApplicationDetail = (id: string) => {
+    setPreviousPage(currentPage);
     setSelectedApplicationId(id);
     setCurrentPage("employee-application-detail");
   };
@@ -418,6 +421,7 @@ export default function App() {
               onLogout={handleLogout}
               onAddToMyApplications={addToMyApplications}
               unreadMessagesCount={unreadCount}
+              previousPage={previousPage}
             />
           );
         case "employee-my-applications":
