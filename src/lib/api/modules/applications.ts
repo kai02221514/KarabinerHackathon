@@ -16,4 +16,10 @@ export const applicationsApi = {
       body: JSON.stringify(data), // 作成・更新用データ
     });
   },
+
+  async delete(id: string) {
+    return apiRequest(`/applications/${id}`, {
+      method: "DELETE", // レコード削除
+    });
+  },
 };
