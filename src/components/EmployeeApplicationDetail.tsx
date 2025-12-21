@@ -128,24 +128,24 @@ export default function EmployeeApplicationDetail({
   // 戻る先を決定
   const getBackPage = () => {
     switch (previousPage) {
-      case 'employee-home':
-        return 'employee-home';
-      case 'employee-my-applications':
-        return 'employee-my-applications';
+      case "employee-home":
+        return "employee-home";
+      case "employee-my-applications":
+        return "employee-my-applications";
       default:
-        return 'employee-applications';
+        return "employee-applications";
     }
   };
 
   // 戻るボタンのテキストを決定
   const getBackButtonText = () => {
     switch (previousPage) {
-      case 'employee-home':
-        return 'ホームに戻る';
-      case 'employee-my-applications':
-        return 'マイ申請に戻る';
+      case "employee-home":
+        return "ホームに戻る";
+      case "employee-my-applications":
+        return "マイ申請に戻る";
       default:
-        return '申請一覧に戻る';
+        return "申請一覧に戻る";
     }
   };
 

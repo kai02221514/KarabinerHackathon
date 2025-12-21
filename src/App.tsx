@@ -134,7 +134,6 @@ export default function App() {
     }
   };
 
-
   const handleSignup = async (
     name: string,
     email: string,
@@ -183,7 +182,7 @@ export default function App() {
   const viewApplicationDetail = (id: string) => {
     setPreviousPage(currentPage);
     setSelectedApplicationId(id);
-    setCurrentPage('employee-application-detail');
+    setCurrentPage("employee-application-detail");
   };
 
   const editForm = (id: string | null) => {
