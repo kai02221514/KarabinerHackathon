@@ -90,7 +90,7 @@ export default function AdminHome({
                 .map((app, index) => (
                   <div
                     key={app.id}
-                    className={`p-4 hover:bg-gray-50 cursor-pointer ${
+                    className={`p-4 ${
                       index !==
                       applications.filter((a) => a.isPublished).slice(0, 5)
                         .length -
@@ -98,7 +98,6 @@ export default function AdminHome({
                         ? "border-b border-gray-200"
                         : ""
                     }`}
-                    onClick={() => onNavigate("admin-forms")}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
