@@ -20,6 +20,8 @@ interface AdminFormManagementProps {
   onNavigate: (page: string) => void;
   onLogout: () => void;
   onEditForm: (id: string | null) => void;
+  formFilter: 'all' | 'published' | 'unpublished'; //フィルター条件を受け取るための変数
+  setFormFilter: (filter: 'all' | 'published' | 'unpublished') => void;
 }
 
 export default function AdminFormManagement({
@@ -28,8 +30,13 @@ export default function AdminFormManagement({
   onNavigate,
   onLogout,
   onEditForm,
+  formFilter,
+  setFormFilter
 }: AdminFormManagementProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [methodFilter, setMethodFilter] = useState<string>("all");
+
+  console.log(applications)
 
   // フィルタリング
   const filteredApplications = applications.filter((app) => {
@@ -37,7 +44,16 @@ export default function AdminFormManagement({
       app.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch;
+    const matchesStatus =
+     formFilter === "all" || 
+      (formFilter === "published" && app.isPublished) || 
+      (formFilter === "unpublished" && !app.isPublished);
+
+    const matchesMethod = 
+      methodFilter === "all" || 
+      app.submissionMethod === methodFilter;
+
+    return matchesSearch && matchesStatus && matchesMethod;
   });
 
   return (
@@ -61,16 +77,48 @@ export default function AdminFormManagement({
 
         {/* フィルタエリア */}
         <div className="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-          <div>
-            <Label htmlFor="search">キーワード検索</Label>
-            <Input
-              id="search"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="フォーム名で検索..."
-              className="mt-1"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">  
+            <div>
+              <Label htmlFor="search">キーワード検索</Label>
+              <Input
+                id="search"
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="フォーム名で検索..."
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="status">公開状態</Label>
+              <select
+                id="status"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
+                value={formFilter}
+                onChange={(e) => setFormFilter(e.target.value as "all" | "published" | "unpublished")}
+              >
+                <option value="all">すべて</option>
+                <option value="published">公開中</option>
+                <option value="unpublished">非公開</option>
+              </select>
+            </div>
+
+            <div>
+              <Label htmlFor="method">提出方法</Label>
+              <select
+                id="method"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm mt-1"
+                value={methodFilter}
+                onChange={(e) => setMethodFilter(e.target.value)}
+              >
+                <option value="all">すべての方法</option>
+                {/* 重複を除いた提出方法のリストを動的に生成する場合 */}
+                {Array.from(new Set(applications.map(app => app.submissionMethod))).map(method => (
+                  <option key={method} value={method}>{method}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 

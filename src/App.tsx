@@ -59,6 +59,7 @@ export default function App() {
   const [myApplicationItems, setMyApplicationItems] = useState<
     MyApplicationItem[]
   >([]);
+  const [formFilter, setFormFilter] = useState<'all' | 'published' | 'unpublished'>('all');
   const [messages, setMessages] = useState<Message[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>("");
@@ -107,6 +108,8 @@ export default function App() {
         myApplicationsApi.getAll(),
         messagesApi.getAll(),
       ]);
+
+      console.log(appsRes.application)
 
       setApplications(appsRes.applications || []);
       setMyApplicationItems(myAppsRes.items || []);
@@ -487,6 +490,8 @@ export default function App() {
               onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onEditForm={editForm}
+              formFilter={formFilter}
+              setFormFilter={setFormFilter}
             />
           );
         case "admin-form-editor":
@@ -532,6 +537,7 @@ export default function App() {
               onNavigate={navigateTo as (page: string) => void}
               onLogout={handleLogout}
               onEditForm={editForm}
+              setFormFilter={setFormFilter}
             />
           );
       }
