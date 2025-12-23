@@ -16,6 +16,7 @@ interface AdminHomeProps {
   onNavigate: (page: string) => void;
   onLogout: () => void;
   onEditForm: (id: string | null) => void;
+  setFormFilter: (filter: 'all' | 'published' | 'unpublished') => void;
 }
 
 export default function AdminHome({
@@ -24,6 +25,7 @@ export default function AdminHome({
   onNavigate,
   onLogout,
   onEditForm,
+  setFormFilter
 }: AdminHomeProps) {
   const totalForms = applications.length;
   const publishedForms = applications.filter((app) => app.isPublished).length;
@@ -45,7 +47,12 @@ export default function AdminHome({
 
         {/* サマリーカード */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6"
+           onClick={() => {
+            setFormFilter("published");
+            onNavigate("admin-forms");
+            }}
+          >
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="text-gray-600 mb-2">登録フォーム数</div>
@@ -58,7 +65,12 @@ export default function AdminHome({
             </div>
           </div>
 
-          <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6" 
+           onClick={() => {
+            setFormFilter("unpublished");
+            onNavigate("admin-forms");
+            }}
+          >
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="text-gray-600 mb-2">非公開フォーム</div>
