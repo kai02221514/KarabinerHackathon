@@ -47,6 +47,8 @@ export default function EmployeeMyApplications({
     new Set(items.filter((item) => item.isCompleted).map((item) => item.id)),
   );
 
+  const [showAddModal, setShowAddModal] = useState(false);
+
   // ユーザーのマイ申請アイテムを取得
   const myItems = items
     .map((item) => {
@@ -91,7 +93,7 @@ export default function EmployeeMyApplications({
     onUpdateMyApplications(updatedItems);
   };
 
-  const handleOpenSubmissionUrl = (url: string) => {};
+  const handleOpenSubmissionUrl = (url: string) => { };
 
   const incompleteCount = myItems.filter(
     (item) => !completedItems.has(item.id),
@@ -117,31 +119,28 @@ export default function EmployeeMyApplications({
           <div className="flex gap-2">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                filter === "all"
+              className={`px-4 py-2 rounded-md transition-colors ${filter === "all"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+                }`}
             >
               全て ({myItems.length})
             </button>
             <button
               onClick={() => setFilter("incomplete")}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                filter === "incomplete"
+              className={`px-4 py-2 rounded-md transition-colors ${filter === "incomplete"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+                }`}
             >
               未完了 ({incompleteCount})
             </button>
             <button
               onClick={() => setFilter("completed")}
-              className={`px-4 py-2 rounded-md transition-colors ${
-                filter === "completed"
+              className={`px-4 py-2 rounded-md transition-colors ${filter === "completed"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+                }`}
             >
               完了 ({completedCount})
             </button>
@@ -162,11 +161,10 @@ export default function EmployeeMyApplications({
               return (
                 <div
                   key={item.id}
-                  className={`bg-white rounded-lg border-2 p-4 transition-all ${
-                    isCompleted
+                  className={`bg-white rounded-lg border-2 p-4 transition-all ${isCompleted
                       ? "border-gray-200 opacity-60"
                       : "border-blue-200 hover:shadow-md"
-                  }`}
+                    }`}
                 >
                   {/* カードヘッダー */}
                   <div className="flex items-start justify-between mb-3">
@@ -179,11 +177,10 @@ export default function EmployeeMyApplications({
                     </div>
                     <button
                       onClick={() => handleToggleComplete(item.id)}
-                      className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
-                        isCompleted
+                      className={`flex-shrink-0 w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${isCompleted
                           ? "bg-green-600 border-green-600"
                           : "border-gray-300 hover:border-gray-400"
-                      }`}
+                        }`}
                     >
                       {isCompleted && <Check className="h-4 w-4 text-white" />}
                     </button>
@@ -216,7 +213,7 @@ export default function EmployeeMyApplications({
                       申請フォームを開く
                     </Button>
                     <Button
-                      onClick={() => onDeleteMyApplication(item.id)}
+                      onClick={() => setShowAddModal(!showAddModal)}
                       variant="outline"
                       size="sm"
                       className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -225,6 +222,37 @@ export default function EmployeeMyApplications({
                       削除
                     </Button>
                   </div>
+                  {showAddModal && (
+                    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                      <div className="bg-white rounded-lg max-w-lg w-full p-6 relative">
+                        <button
+                          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                        >
+                        </button>
+
+                        <h2 className="mb-4">本当に削除しますか</h2>
+
+                        <div className="space-y-4">
+                          <div className="flex gap-3 pt-2">
+                            <Button
+                              onClick={() => onDeleteMyApplication(item.id)}
+                              className="flex-1"
+                              variant="destructive"
+                            >
+                              削除
+                            </Button>
+                            <Button
+                              onClick={() => setShowAddModal(!showAddModal)}
+                              variant="outline"
+                              className="flex-1"
+                            >
+                              キャンセル
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
