@@ -49,7 +49,7 @@ export default function AdminHome({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white rounded-lg border border-gray-200 p-6"
            onClick={() => {
-            setFormFilter("published");
+            setFormFilter("all");
             onNavigate("admin-forms");
             }}
           >
@@ -57,7 +57,7 @@ export default function AdminHome({
               <div className="flex-1">
                 <div className="text-gray-600 mb-2">登録フォーム数</div>
                 <div className="mb-1">{totalForms}件</div>
-                <div className="text-gray-600">公開中: {publishedForms}件</div>
+                {/* <div className="text-gray-600">公開中: {publishedForms}件</div> */}
               </div>
               <div className="bg-blue-50 p-3 rounded-lg">
                 <FileText className="h-6 w-6 text-blue-600" />
