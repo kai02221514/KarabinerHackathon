@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "./Header";
-import { mockUserProfiles, type Message } from "../lib/mockData";
+import { type Message } from "../lib/mockData";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Send, ArrowLeft } from "lucide-react";
+import { usersApi } from "../lib/api/modules/users";
+import { toast } from "sonner";
 
 interface User {
   id: string;
@@ -31,9 +33,32 @@ export default function EmployeeMessageDetail({
 }: EmployeeMessageDetailProps) {
   const [messageInput, setMessageInput] = useState("");
 
-  // 管理者のIDを取得
-  const adminUser = mockUserProfiles.find((u) => u.role === "admin");
-  const adminId = adminUser?.id || "admin1";
+  const [users, setUsers] = useState<User[]>([]);
+
+  // ユーザー一覧を取得
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const { users } = await usersApi.getAll();
+        // 自分を除く全ての管理者と従業員を取得
+        const filteredUsers = users.filter((u: User) => u.id !== user.id);
+        setUsers(filteredUsers);
+      } catch (error: any) {
+        console.log("Load users error:", error);
+        toast.error("ユーザー一覧の取得に失敗しました");
+      }
+    };
+
+    loadUsers();
+  }, []);
+
+  // 管理者のIDを取得（受信メッセージから）
+  const adminMessage = messages.find((msg) => msg.receiverId === user.id);
+  const adminId =
+    adminMessage?.senderId ||
+    messages.find((msg) => msg.senderId !== user.id)?.senderId ||
+    users.find((u) => u.role === "admin")?.id ||
+    "abc123def";
 
   // このユーザーと管理者とのメッセージのみフィルター
   const chatMessages = messages

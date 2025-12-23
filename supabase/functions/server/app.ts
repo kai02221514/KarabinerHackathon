@@ -4,6 +4,9 @@ import { logger } from "npm:hono/logger"; // ログ出力ミドルウェア
 import { authRoutes } from "./routes/auth.ts"; // 認証ルーター
 import { healthRoutes } from "./routes/health.ts"; // ヘルスチェック
 import { adminRoutes } from "./routes/admin.ts";
+import { messageRoutes } from "./routes/messages.ts";
+import { applicationRoutes } from "./routes/applications.ts";
+import { myApplicationRoutes } from "./routes/myApplications.ts";
 
 export function createApp() {
   const app = new Hono(); // Hono アプリインスタンスを生成
@@ -26,6 +29,9 @@ export function createApp() {
   app.route("/", healthRoutes);
   app.route("/", authRoutes);
   app.route("/", adminRoutes);
+  app.route("/", messageRoutes);
+  app.route("/", applicationRoutes);
+  app.route("/", myApplicationRoutes);
 
   return app; // 完成したアプリを返す
 }

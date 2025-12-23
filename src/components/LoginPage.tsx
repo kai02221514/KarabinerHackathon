@@ -48,7 +48,7 @@ export default function LoginPage({ onLogin, onSignup }: LoginPageProps) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="パスワードを入力"
               />
             </div>
 
@@ -69,13 +69,6 @@ export default function LoginPage({ onLogin, onSignup }: LoginPageProps) {
             >
               こちら
             </button>
-          </div>
-
-          <div className="mt-8 p-4 bg-blue-50 rounded text-blue-900">
-            <p className="mb-2">デモ用アカウント：</p>
-            <p>社員: employee@company.com</p>
-            <p>アドミン: admin@company.com</p>
-            <p>パスワード: 任意</p>
           </div>
         </div>
       </div>

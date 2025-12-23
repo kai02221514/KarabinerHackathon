@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Header from "./Header";
 import { type Application, type MyApplicationItem } from "../lib/mockData";
-import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Check, ExternalLink, Trash2 } from "lucide-react";
 
@@ -50,7 +49,6 @@ export default function EmployeeMyApplications({
 
   // ユーザーのマイ申請アイテムを取得
   const myItems = items
-    .filter((item) => item.userId === user.id)
     .map((item) => {
       const app = applications.find((a) => a.id === item.applicationId);
       return {
@@ -76,24 +74,24 @@ export default function EmployeeMyApplications({
   });
 
   const handleToggleComplete = (itemId: string) => {
-    setCompletedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId);
-      } else {
-        newSet.add(itemId);
-      }
-      return newSet;
-    });
+    const newCompletedItems = new Set(completedItems);
+    if (newCompletedItems.has(itemId)) {
+      newCompletedItems.delete(itemId);
+    } else {
+      newCompletedItems.add(itemId);
+    }
+    setCompletedItems(newCompletedItems);
+
+    // 親コンポーネントに更新を通知
+    const updatedItems = items.map((item) =>
+      item.id === itemId
+        ? { ...item, isCompleted: newCompletedItems.has(itemId) }
+        : item,
+    );
+    onUpdateMyApplications(updatedItems);
   };
 
-  const handleOpenSubmissionUrl = (url: string) => {
-    if (url.startsWith("http")) {
-      window.open(url, "_blank");
-    } else {
-      window.location.href = url;
-    }
-  };
+  const handleOpenSubmissionUrl = (url: string) => {};
 
   const incompleteCount = myItems.filter(
     (item) => !completedItems.has(item.id),
@@ -209,9 +207,7 @@ export default function EmployeeMyApplications({
                   {/* アクションボタン */}
                   <div className="space-y-2">
                     <Button
-                      onClick={() =>
-                        handleOpenSubmissionUrl(item.submissionUrl)
-                      }
+                      onClick={() => onViewDetail(item.applicationId)}
                       variant="outline"
                       size="sm"
                       className="w-full"

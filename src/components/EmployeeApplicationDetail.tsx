@@ -27,6 +27,7 @@ interface EmployeeApplicationDetailProps {
     memo: string,
   ) => void;
   unreadMessagesCount?: number;
+  previousPage?: string | null;
 }
 
 export default function EmployeeApplicationDetail({
@@ -37,6 +38,7 @@ export default function EmployeeApplicationDetail({
   onLogout,
   onAddToMyApplications,
   unreadMessagesCount = 0,
+  previousPage = null,
 }: EmployeeApplicationDetailProps) {
   const application = applications.find((app) => app.id === applicationId);
 
@@ -108,8 +110,11 @@ export default function EmployeeApplicationDetail({
     // 成功通知を表示（クリックで遷移）
     toast.success("マイ申請に追加しました", {
       duration: 3000,
-      onClick: () => {
-        onNavigate("employee-my-applications");
+      action: {
+        label: "マイ申請を開く",
+        onClick: () => {
+          onNavigate("employee-my-applications");
+        },
       },
     });
   };
@@ -118,6 +123,30 @@ export default function EmployeeApplicationDetail({
     setShowAddModal(false);
     setAddTitle("");
     setAddMemo("");
+  };
+
+  // 戻る先を決定
+  const getBackPage = () => {
+    switch (previousPage) {
+      case "employee-home":
+        return "employee-home";
+      case "employee-my-applications":
+        return "employee-my-applications";
+      default:
+        return "employee-applications";
+    }
+  };
+
+  // 戻るボタンのテキストを決定
+  const getBackButtonText = () => {
+    switch (previousPage) {
+      case "employee-home":
+        return "ホームに戻る";
+      case "employee-my-applications":
+        return "マイ申請に戻る";
+      default:
+        return "申請一覧に戻る";
+    }
   };
 
   return (
@@ -134,10 +163,10 @@ export default function EmployeeApplicationDetail({
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Button
           variant="outline"
-          onClick={() => onNavigate("employee-applications")}
+          onClick={() => onNavigate(getBackPage()!)}
           className="mb-6"
         >
-          ← 申請一覧に戻る
+          ← {getBackButtonText()}
         </Button>
 
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -193,16 +222,6 @@ export default function EmployeeApplicationDetail({
                   マイ申請に追加
                 </Button>
               </div>
-
-              {!isSubmitted && (
-                <Button
-                  variant="outline"
-                  onClick={handleMarkAsSubmitted}
-                  className="w-full"
-                >
-                  提出済みにマークする
-                </Button>
-              )}
             </div>
           </div>
         </div>

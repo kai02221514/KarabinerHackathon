@@ -19,9 +19,9 @@ adminRoutes.get(`${API_PREFIX}/users`, async (c) => {
     if (!profile) {
       return c.json({ error: "User not found" }, 404);
     }
-    if (profile.role !== "admin") {
-      return c.json({ error: "Forbidden" }, 403); // 管理者以外は拒否
-    }
+    // if (profile.role !== "admin") {
+    //   return c.json({ error: "Forbidden" }, 403); // 管理者以外は拒否
+    // }
 
     const { data, error } = await supabase
       .from("users")

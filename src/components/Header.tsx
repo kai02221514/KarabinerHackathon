@@ -2,6 +2,7 @@ import { Button } from "./ui/button";
 import { Menu, X, Bell } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { c } from "vite/dist/node/moduleRunnerTransport.d-DJ_mE5sf";
 
 interface HeaderProps {
   userName: string;
@@ -42,7 +43,7 @@ export default function Header({
               )}
               {role === "admin" && (
                 <>
-                  {(currentPage === "admin-home" || !currentPage) && "ホーム"}
+                  {currentPage === "admin-home" && "ホーム"}
                   {currentPage === "admin-forms" && "フォーム管理"}
                   {currentPage === "admin-users" && "メッセージ"}
                   {currentPage === "admin-user-chat" && "ユーザーチャット"}
@@ -66,7 +67,8 @@ export default function Header({
                 <button
                   onClick={() => onNavigate("employee-applications")}
                   className={` ${
-                    currentPage === "employee-applications"
+                    currentPage === "employee-applications" ||
+                    currentPage === "employee-application-detail"
                       ? "text-blue-600"
                       : "text-gray-700"
                   }`}
@@ -83,6 +85,17 @@ export default function Header({
                 >
                   マイ申請
                 </button>
+                <button
+                  onClick={() => onNavigate("employee-message-detail")}
+                  className={` ${
+                    currentPage === "employee-message-detail" ||
+                    currentPage === "employee-messages"
+                      ? "text-blue-600"
+                      : "text-gray-700"
+                  }`}
+                >
+                  メッセージ
+                </button>
               </nav>
             )}
 
@@ -91,7 +104,7 @@ export default function Header({
                 <button
                   onClick={() => onNavigate("admin-home")}
                   className={` ${
-                    currentPage === "admin-home" || !currentPage
+                    currentPage === "admin-home"
                       ? "text-blue-600"
                       : "text-gray-700"
                   }`}
@@ -101,7 +114,7 @@ export default function Header({
                 <button
                   onClick={() => onNavigate("admin-forms")}
                   className={` ${
-                    currentPage === "admin-forms"
+                    currentPage === "admin-forms" || !currentPage
                       ? "text-blue-600"
                       : "text-gray-700"
                   }`}
@@ -248,6 +261,22 @@ export default function Header({
                         }`}
                       >
                         マイ申請
+                      </motion.button>
+                      <motion.button
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        onClick={() => {
+                          onNavigate("employee-message-detail");
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`text-left py-2 text-gray-700 hover:text-gray-900 ${
+                          currentPage === "employee-message-detail"
+                            ? "text-blue-600"
+                            : ""
+                        }`}
+                      >
+                        メッセージ
                       </motion.button>
                     </nav>
                   )}

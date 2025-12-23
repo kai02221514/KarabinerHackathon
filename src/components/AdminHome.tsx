@@ -1,7 +1,7 @@
 import Header from "./Header";
 import { type Application } from "../lib/mockData";
 import { Button } from "./ui/button";
-import { FileText, CheckCircle, Clock } from "lucide-react";
+import { FileText, Clock } from "lucide-react";
 
 interface User {
   id: string;
@@ -90,7 +90,7 @@ export default function AdminHome({
                 .map((app, index) => (
                   <div
                     key={app.id}
-                    className={`p-4 hover:bg-gray-50 cursor-pointer ${
+                    className={`p-4 ${
                       index !==
                       applications.filter((a) => a.isPublished).slice(0, 5)
                         .length -
@@ -98,7 +98,6 @@ export default function AdminHome({
                         ? "border-b border-gray-200"
                         : ""
                     }`}
-                    onClick={() => onNavigate("admin-forms")}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -110,7 +109,6 @@ export default function AdminHome({
                         </div>
                       </div>
                       <Button
-                        variant="ghost"
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
